@@ -4,3 +4,19 @@
     build:
       context: .
       dockerfile: ApiGateway/Dockerfile
+
+  # Needs to be unsealed manually after starting so it can be used
+  vault:
+    image: hashicorp/vault
+    container_name: vault
+    cap_add:
+      - IPC_LOCK
+    volumes:
+      - ./config.hcl:/vault/config/config.hcl:ro
+      - ./vault_data:/vault/data
+    ports:
+      - "8200:8200"
+    command: server
+    networks:
+      - default
+      - microservices
