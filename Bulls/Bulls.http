@@ -1,6 +1,0 @@
-@Bulls_HostAddress = http://localhost:5086
-
-GET {{Bulls_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###
