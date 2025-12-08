@@ -1,0 +1,6 @@
+@StockService_HostAddress = http://localhost:5216
+
+GET {{StockService_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
