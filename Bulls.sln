@@ -7,11 +7,43 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		docker-compose.yaml = docker-compose.yaml
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrderService", "OrderService\OrderService.csproj", "{CD453ADF-AD67-40CF-AC2B-1E9FEC9A7719}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrderService.Api", "OrderMicroservice\OrderService.Api\OrderService.Api.csproj", "{CD453ADF-AD67-40CF-AC2B-1E9FEC9A7719}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StockService", "StockService\StockService.csproj", "{52377074-DCB5-4BC8-9370-85A7805D944B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StockService.Api", "StockMicroservice\StockService.Api\StockService.Api.csproj", "{52377074-DCB5-4BC8-9370-85A7805D944B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthenticationService", "AuthenticationService\AuthenticationService.csproj", "{69ADBE71-CF2E-43F7-AA22-8FF6F5B89200}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthenticationService.Api", "AuthenticationMicroservice\AuthenticationService.Api\AuthenticationService.Api.csproj", "{69ADBE71-CF2E-43F7-AA22-8FF6F5B89200}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaymentService.Api", "PaymentMicroservice\PaymentService.Api\PaymentService.Api.csproj", "{9A61B362-EE51-44B3-BD24-17481D56432C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrderService.Core", "OrderMicroservice\OrderService.Core\OrderService.Core.csproj", "{1DA47EA6-7FBD-4AC7-AA4B-E93103412608}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthenticationService.Core", "AuthenticationMicroservice\AuthenticationService.Core\AuthenticationService.Core.csproj", "{71C6FAEA-EC1A-4161-A009-6BBA44E29AE2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaymentService.Core", "PaymentMicroservice\PaymentService.Core\PaymentService.Core.csproj", "{8E2614B6-8810-478B-AA38-D539C3D1375C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StockService.Core", "StockMicroservice\StockService.Core\StockService.Core.csproj", "{EB3A4C18-69F4-4A3E-A340-28FA4EA2B1D6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthenticationService.Infrastructure", "AuthenticationMicroservice\AuthenticationService.Infrastructure\AuthenticationService.Infrastructure.csproj", "{07B04F9F-DB4E-4D03-AF1E-3FFD4CFDB671}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrderService.Infrastructure", "OrderMicroservice\OrderService.Infrastructure\OrderService.Infrastructure.csproj", "{A0D67227-FA91-4EDE-8D9D-8AAF5608AA19}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaymentService.Infrastructure", "PaymentMicroservice\PaymentService.Infrastructure\PaymentService.Infrastructure.csproj", "{C1E08C44-C58E-4A8B-AAD5-86A66EAD1724}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StockService.Infrastructure", "StockMicroservice\StockService.Infrastructure\StockService.Infrastructure.csproj", "{728AE1A2-50F9-437B-8E20-77F83566C12C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthenticationService.Application", "AuthenticationMicroservice\AuthenticationService.Application\AuthenticationService.Application.csproj", "{96ACCBFB-7D56-462E-A5D0-379C833DD30C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrderService.Application", "OrderMicroservice\OrderService.Application\OrderService.Application.csproj", "{E32A69D3-2056-43AB-A15A-2975FD55A9C2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaymentService.Application", "PaymentMicroservice\PaymentService.Application\PaymentService.Application.csproj", "{9A2BDE5E-CD65-49C4-93AB-37C3931F8EAB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StockService.Application", "StockMicroservice\StockService.Application\StockService.Application.csproj", "{55849FA1-B865-42EE-8D84-93CCFEF97F35}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrderService.Messaging", "OrderMicroservice\OrderService.Messaging\OrderService.Messaging.csproj", "{1AF955F2-F902-4130-AB69-2FFA4E818321}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaymentService.Messaging", "PaymentMicroservice\PaymentService.Messaging\PaymentService.Messaging.csproj", "{A09E408E-82C0-47BE-8836-85C1D73E99B1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StockService.Messaging", "StockMicroservice\StockService.Messaging\StockService.Messaging.csproj", "{35502A76-E440-47B8-A1D8-2815C4764D12}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -35,5 +67,69 @@ Global
 		{69ADBE71-CF2E-43F7-AA22-8FF6F5B89200}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{69ADBE71-CF2E-43F7-AA22-8FF6F5B89200}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{69ADBE71-CF2E-43F7-AA22-8FF6F5B89200}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9A61B362-EE51-44B3-BD24-17481D56432C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9A61B362-EE51-44B3-BD24-17481D56432C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9A61B362-EE51-44B3-BD24-17481D56432C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9A61B362-EE51-44B3-BD24-17481D56432C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1DA47EA6-7FBD-4AC7-AA4B-E93103412608}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1DA47EA6-7FBD-4AC7-AA4B-E93103412608}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1DA47EA6-7FBD-4AC7-AA4B-E93103412608}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1DA47EA6-7FBD-4AC7-AA4B-E93103412608}.Release|Any CPU.Build.0 = Release|Any CPU
+		{71C6FAEA-EC1A-4161-A009-6BBA44E29AE2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{71C6FAEA-EC1A-4161-A009-6BBA44E29AE2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{71C6FAEA-EC1A-4161-A009-6BBA44E29AE2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{71C6FAEA-EC1A-4161-A009-6BBA44E29AE2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8E2614B6-8810-478B-AA38-D539C3D1375C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8E2614B6-8810-478B-AA38-D539C3D1375C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8E2614B6-8810-478B-AA38-D539C3D1375C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8E2614B6-8810-478B-AA38-D539C3D1375C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EB3A4C18-69F4-4A3E-A340-28FA4EA2B1D6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EB3A4C18-69F4-4A3E-A340-28FA4EA2B1D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EB3A4C18-69F4-4A3E-A340-28FA4EA2B1D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EB3A4C18-69F4-4A3E-A340-28FA4EA2B1D6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{07B04F9F-DB4E-4D03-AF1E-3FFD4CFDB671}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{07B04F9F-DB4E-4D03-AF1E-3FFD4CFDB671}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{07B04F9F-DB4E-4D03-AF1E-3FFD4CFDB671}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{07B04F9F-DB4E-4D03-AF1E-3FFD4CFDB671}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A0D67227-FA91-4EDE-8D9D-8AAF5608AA19}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A0D67227-FA91-4EDE-8D9D-8AAF5608AA19}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A0D67227-FA91-4EDE-8D9D-8AAF5608AA19}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A0D67227-FA91-4EDE-8D9D-8AAF5608AA19}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C1E08C44-C58E-4A8B-AAD5-86A66EAD1724}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C1E08C44-C58E-4A8B-AAD5-86A66EAD1724}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C1E08C44-C58E-4A8B-AAD5-86A66EAD1724}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C1E08C44-C58E-4A8B-AAD5-86A66EAD1724}.Release|Any CPU.Build.0 = Release|Any CPU
+		{728AE1A2-50F9-437B-8E20-77F83566C12C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{728AE1A2-50F9-437B-8E20-77F83566C12C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{728AE1A2-50F9-437B-8E20-77F83566C12C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{728AE1A2-50F9-437B-8E20-77F83566C12C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{96ACCBFB-7D56-462E-A5D0-379C833DD30C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{96ACCBFB-7D56-462E-A5D0-379C833DD30C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{96ACCBFB-7D56-462E-A5D0-379C833DD30C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{96ACCBFB-7D56-462E-A5D0-379C833DD30C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E32A69D3-2056-43AB-A15A-2975FD55A9C2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E32A69D3-2056-43AB-A15A-2975FD55A9C2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E32A69D3-2056-43AB-A15A-2975FD55A9C2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E32A69D3-2056-43AB-A15A-2975FD55A9C2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9A2BDE5E-CD65-49C4-93AB-37C3931F8EAB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9A2BDE5E-CD65-49C4-93AB-37C3931F8EAB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9A2BDE5E-CD65-49C4-93AB-37C3931F8EAB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9A2BDE5E-CD65-49C4-93AB-37C3931F8EAB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{55849FA1-B865-42EE-8D84-93CCFEF97F35}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{55849FA1-B865-42EE-8D84-93CCFEF97F35}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{55849FA1-B865-42EE-8D84-93CCFEF97F35}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{55849FA1-B865-42EE-8D84-93CCFEF97F35}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1AF955F2-F902-4130-AB69-2FFA4E818321}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1AF955F2-F902-4130-AB69-2FFA4E818321}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1AF955F2-F902-4130-AB69-2FFA4E818321}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1AF955F2-F902-4130-AB69-2FFA4E818321}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A09E408E-82C0-47BE-8836-85C1D73E99B1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A09E408E-82C0-47BE-8836-85C1D73E99B1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A09E408E-82C0-47BE-8836-85C1D73E99B1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A09E408E-82C0-47BE-8836-85C1D73E99B1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{35502A76-E440-47B8-A1D8-2815C4764D12}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{35502A76-E440-47B8-A1D8-2815C4764D12}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{35502A76-E440-47B8-A1D8-2815C4764D12}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{35502A76-E440-47B8-A1D8-2815C4764D12}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
