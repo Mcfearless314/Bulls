@@ -4,6 +4,11 @@
     build:
       context: .
       dockerfile: ApiGateway/Dockerfile
+    ports:
+      - "5000:8080"
+    networks:
+      - default
+      - microservices
 
   # Needs to be unsealed manually after starting so it can be used
   vault:
@@ -20,3 +25,7 @@
     networks:
       - default
       - microservices
+        
+networks:
+  microservices:
+    internal: true
