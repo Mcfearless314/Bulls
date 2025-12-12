@@ -25,7 +25,64 @@
     networks:
       - default
       - microservices
+      
+  stock-service:
+    image: stockservice
+    build:
+      context: .
+      dockerfile: StockMicroservice/StockService.Api/Dockerfile
+    ports:
+      - "5001:8080"
+    depends_on:
+      apigateway:
+        condition: service_started
+      stock-db:
+        condition: service_started
+    networks:
+      - default 
+      - microservices
         
+  stock-db:
+    image: mcr.microsoft.com/azure-sql-edge:latest
+    environment:
+      MSSQL_SA_PASSWORD: "SuperSecret7!"
+      ACCEPT_EULA: "Y"
+    volumes:
+      - stock-data:/var/opt/mssql
+    networks:
+      - microservices
+         
+  order-service:
+    image: orderservice
+    build:
+      context: .
+      dockerfile: OrderMicroservice/OrderService.Api/Dockerfile
+    ports:
+      - "5002:8080"
+    depends_on:
+      apigateway:
+        condition: service_started
+      order-db:
+        condition: service_started
+    networks:
+      - default
+      - microservices
+
+  order-db:
+    image: mcr.microsoft.com/azure-sql-edge:latest
+    environment:
+      MSSQL_SA_PASSWORD: "SuperSecret7!"
+      ACCEPT_EULA: "Y"
+    volumes:
+      - order-data:/var/opt/mssql
+    networks:
+      - microservices
+      
+      
 networks:
   microservices:
     internal: true
+
+volumes:
+  stock-data:
+  order-data:
