@@ -10,10 +10,10 @@
       - default
       - microservices
 
-  # Needs to be unsealed manually after starting so it can be used
+  # Unseal manually after starting so it can be used
   vault:
     image: hashicorp/vault
-    container_name: vault
+    container_name: bulls-vault
     cap_add:
       - IPC_LOCK
     volumes:
@@ -24,6 +24,14 @@
     command: server
     networks:
       - default
+      - microservices
+      
+  authentication-service-api:
+    image: authentication-service-api
+    build:
+      context: .
+      dockerfile: AuthenticationMicroservice/AuthenticationService.Api/Dockerfile
+    networks:
       - microservices
         
 networks:

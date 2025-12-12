@@ -19,4 +19,9 @@
       </Content>
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\AuthenticationService.Application\AuthenticationService.Application.csproj" />
+      <ProjectReference Include="..\AuthenticationService.Core\AuthenticationService.Core.csproj" />
+    </ItemGroup>
+
 </Project>
