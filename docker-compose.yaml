@@ -4,6 +4,8 @@
     build:
       context: .
       dockerfile: ApiGateway/Dockerfile
+    env_file:
+      - .env # See .env.example for reference.
     ports:
       - "5000:8080"
     networks:

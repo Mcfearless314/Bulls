@@ -7,7 +7,12 @@ namespace AuthenticationService;
 
 public static class VaultHelper
 {
-    public static SecretSettings? FetchSecretsFromVault(string vaultHostName, string username, string password)
+    public static SecretSettings? FetchSecretsFromVault(
+        string vaultHostName,
+        string vaultPath,
+        string vaultKvV2MountPath,
+        string username,
+        string password)
     {
         Console.WriteLine("Fetching secrets from Vault...");
         var config = new VaultConfiguration(vaultHostName);
@@ -18,7 +23,7 @@ public static class VaultHelper
         vaultClient.SetToken(authResponse.ResponseAuth.ClientToken);
 
         Console.WriteLine("Reading secret from Vault...");
-        VaultResponse<KvV2ReadResponse> response = vaultClient.Secrets.KvV2Read("secret", "bulls");
+        VaultResponse<KvV2ReadResponse> response = vaultClient.Secrets.KvV2Read(vaultPath, vaultKvV2MountPath);
         
         JObject data = (JObject)response.Data.Data;
         

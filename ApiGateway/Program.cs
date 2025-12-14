@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Ocelot.DependencyInjection;
-using AuthenticationService;
 using Ocelot.Middleware;
+using AuthenticationService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,16 +11,31 @@ builder.Services.AddSwaggerGen();
 
 builder.Configuration.AddJsonFile("ocelot.json", false, false);
 
-var vaultHostName = builder.Configuration.GetValue<string>("Settings:VaultHostName")
-                    ?? throw new InvalidOperationException("Configuration key 'Settings:VaultHostName' is missing.");
+var vaultHostName = builder.Configuration.GetValue<string>("Vault:VaultHostName");
+var vaultPath = builder.Configuration.GetValue<string>("Vault:VaultPath");
+var vaultKvV2MountPath = builder.Configuration.GetValue<string>("Vault:VaultKvV2MountPath");
+
+if (string.IsNullOrEmpty(vaultHostName) || string.IsNullOrEmpty(vaultPath) || string.IsNullOrEmpty(vaultKvV2MountPath))
+{
+    throw new InvalidOperationException("Missing required Vault configuration values. Please ensure 'Vault:VaultHostName', 'Vault:VaultPath', and 'Vault:VaultKvV2MountPath' are set in configuration.");
+}
+
+builder.Configuration.AddEnvironmentVariables();
+var vaultUsername = builder.Configuration["Username"];
+var vaultPassword = builder.Configuration["Password"];
+
+if (string.IsNullOrWhiteSpace(vaultUsername) || string.IsNullOrWhiteSpace(vaultPassword))
+{
+    Console.Error.WriteLine("Vault credentials are missing. Ensure environment variables 'Username' and 'Password' are set.");
+    throw new InvalidOperationException("Vault credentials are required to start the API Gateway.");
+}
 
 var secretSettings = new SecretSettings();
-
 while (string.IsNullOrEmpty(secretSettings.BullsToken))
 {
     try
     {
-        secretSettings = VaultHelper.FetchSecretsFromVault(vaultHostName, "bulls-user", "user"); // This would be entered securely in a real scenario (UI and hashing)
+        secretSettings = VaultHelper.FetchSecretsFromVault(vaultHostName, vaultPath, vaultKvV2MountPath, vaultUsername, vaultPassword);
         Console.WriteLine("Successfully fetched secrets from Vault.");
     }
     catch (Exception exception)

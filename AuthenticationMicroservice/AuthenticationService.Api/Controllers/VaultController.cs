@@ -20,13 +20,19 @@ public class VaultController : ControllerBase
     public IActionResult PostCredentials([FromBody] VaultCredentialsDto credentials)
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
-
-        var vaultHostName = _configuration.GetValue<string>("Settings:VaultHostName") 
-                            ?? throw new InvalidOperationException(
-                                "Configuration key 'Settings:VaultHostName' is missing.");
+        
         try
         {
-            var fetched = VaultHelper.FetchSecretsFromVault(vaultHostName, credentials.Username, credentials.Password);
+            var vaultHostName = _configuration.GetValue<string>("Vault:VaultHostName");
+            var vaultPath = _configuration.GetValue<string>("Vault:VaultPath");
+            var vaultKvV2MountPath = _configuration.GetValue<string>("Vault:VaultKvV2MountPath");
+            
+            var fetched = VaultHelper.FetchSecretsFromVault(
+                vaultHostName,
+                vaultPath,
+                vaultKvV2MountPath,
+                credentials.Username,
+                credentials.Password);
 
             _secretSettings.BullsToken = fetched.BullsToken;
 
