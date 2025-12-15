@@ -1,9 +1,8 @@
-namespace PaymentService.Core.DomainEvents;
+namespace PaymentService.Core.Contracts;
 
-public class PaymentFailed
+public class PaymentRefundEvent
 {
     public int OrderId { get; set; }
     public double Amount { get; set; }
     public int UserId { get; set; }
-    public string Reason { get; set; }
 }

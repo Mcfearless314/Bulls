@@ -1,6 +1,6 @@
 namespace PaymentService.Core.DomainEvents;
 
-public class PaymentFailed
+public class PaymentRefundFailed
 {
     public int OrderId { get; set; }
     public double Amount { get; set; }

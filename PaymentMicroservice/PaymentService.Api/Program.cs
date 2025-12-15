@@ -1,5 +1,7 @@
 using EasyNetQ;
+using Microsoft.EntityFrameworkCore;
 using PaymentService.Core.Interfaces;
+using PaymentService.Infrastructure;
 using PaymentService.Messaging;
 using PaymentService.Messaging.MessageBackgroundService;
 using PaymentService.Messaging.MessageHandler;
@@ -8,9 +10,19 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddControllers();
 
-var app = builder.Build();
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"), sqlOptions =>
+    {
+        sqlOptions.EnableRetryOnFailure(
+            maxRetryCount: 5,
+            maxRetryDelay: TimeSpan.FromSeconds(10),
+            errorNumbersToAdd: null);
+    }));
 
+builder.Services.AddScoped<IPaymentRepository, IPaymentRepository>();
+builder.Services.AddScoped<PaymentService.Application.Services.PaymentService>();
 builder.Services.AddScoped<IMessageClient, EasyNetQMessageClient>();
 builder.Services.AddScoped<IMessageHandler, MessageHandler>();
 builder.Services.AddHostedService<MessageBackgroundService>();
@@ -39,7 +51,7 @@ builder.Services.AddSingleton<IBus>(sp =>
     throw new Exception("Could not connect to RabbitMQ after multiple attempts.");
 });
 
-
+var app = builder.Build();
 app.UseSwagger();
 app.UseSwaggerUI();
 

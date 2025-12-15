@@ -1,3 +1,5 @@
+using PaymentService.Core.Enums;
+
 namespace PaymentService.Core.Entities;
 
 public class Payment

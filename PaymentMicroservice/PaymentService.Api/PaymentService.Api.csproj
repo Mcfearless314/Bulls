@@ -11,6 +11,7 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.22"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.9" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2"/>
     </ItemGroup>
 
@@ -22,6 +23,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\PaymentService.Core\PaymentService.Core.csproj" />
+      <ProjectReference Include="..\PaymentService.Infrastructure\PaymentService.Infrastructure.csproj" />
       <ProjectReference Include="..\PaymentService.Messaging\PaymentService.Messaging.csproj" />
     </ItemGroup>
 
