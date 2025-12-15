@@ -6,6 +6,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
         <RootNamespace>ApiGateway</RootNamespace>
+        <UserSecretsId>c4665bda-4e6d-4b6a-80e8-56d7a77ebb67</UserSecretsId>
     </PropertyGroup>
 
     <ItemGroup>

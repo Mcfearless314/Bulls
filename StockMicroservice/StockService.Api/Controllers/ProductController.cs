@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using StockService.Application.Services;
-using StockService.Core.Contracts;
+using StockService.Core.Entities;
 
 namespace StockService.Controllers;
 

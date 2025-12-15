@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using StockService.Core.Contracts;
+using StockService.Core.Entities;
 using StockService.DTOs;
 
 namespace StockService.Controllers;

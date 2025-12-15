@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using StockService.Core.Contracts;
+using StockService.Core.Entities;
 
 namespace StockService.Infrastructure;
 
