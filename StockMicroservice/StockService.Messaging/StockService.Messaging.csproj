@@ -6,4 +6,14 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <ItemGroup>
+      <PackageReference Include="EasyNetQ" Version="7.8.0" />
+      <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\StockService.Application\StockService.Application.csproj" />
+      <ProjectReference Include="..\StockService.Core\StockService.Core.csproj" />
+    </ItemGroup>
+
 </Project>

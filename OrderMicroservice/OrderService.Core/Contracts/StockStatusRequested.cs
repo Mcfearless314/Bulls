@@ -1,7 +1,6 @@
+namespace OrderService.Core.Contracts;
 
-namespace StockService.Core.DomainEvents;
-
-public class StockReserved
+public class StockStatusRequested
 {
     public int ProductId { get; set; }
     public int Quantity { get; set; }

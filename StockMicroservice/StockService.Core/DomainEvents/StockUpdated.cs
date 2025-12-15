@@ -1,7 +1,6 @@
-
 namespace StockService.Core.DomainEvents;
 
-public class StockReleased
+public class StockUpdated
 {
     public int OrderId { get; set; }
 }

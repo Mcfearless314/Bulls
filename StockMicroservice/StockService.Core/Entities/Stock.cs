@@ -1,4 +1,4 @@
-namespace StockService.Core.Contracts;
+namespace StockService.Core.Entities;
 
 public class Stock
 {
@@ -7,4 +7,6 @@ public class Stock
     public Product Product { get; set; }
     public int Quantity { get; set; }
     public int ReservedQuantity { get; set; }
+
+    public int SoldQuantity { get; set; }
 }

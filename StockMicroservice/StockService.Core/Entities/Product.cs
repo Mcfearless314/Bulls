@@ -1,4 +1,4 @@
-namespace StockService.Core.Contracts;
+namespace StockService.Core.Entities;
 
 public class Product
 {

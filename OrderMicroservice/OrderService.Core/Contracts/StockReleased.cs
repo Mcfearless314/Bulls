@@ -1,5 +1,4 @@
-
-namespace StockService.Core.DomainEvents;
+namespace OrderService.Core.Contracts;
 
 public class StockReleased
 {

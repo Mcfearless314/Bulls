@@ -1,4 +1,4 @@
-﻿using StockService.Core.Contracts;
+﻿using StockService.Core.Entities;
 
 namespace StockService.Core.Interfaces;
 
