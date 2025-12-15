@@ -1,6 +1,6 @@
 namespace StockService.Core.DomainEvents;
 
-public class StockUpdatedFailed
+public class StockUpdateFailed
 {
     public int OrderId { get; set; }
     public string Reason { get; set; }

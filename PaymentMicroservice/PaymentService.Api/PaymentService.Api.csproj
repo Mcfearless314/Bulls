@@ -6,6 +6,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
         <RootNamespace>PaymentService</RootNamespace>
+        <UserSecretsId>af95df95-83bc-43e5-a0ae-e7526f2aa0a1</UserSecretsId>
     </PropertyGroup>
 
     <ItemGroup>
@@ -17,6 +18,11 @@
       <Content Include="..\.dockerignore">
         <Link>.dockerignore</Link>
       </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\PaymentService.Core\PaymentService.Core.csproj" />
+      <ProjectReference Include="..\PaymentService.Messaging\PaymentService.Messaging.csproj" />
     </ItemGroup>
 
 </Project>

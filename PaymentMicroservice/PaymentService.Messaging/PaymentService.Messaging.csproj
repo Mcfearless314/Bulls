@@ -6,4 +6,13 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\PaymentService.Core\PaymentService.Core.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="EasyNetQ" Version="7.8.0" />
+      <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.1" />
+    </ItemGroup>
+
 </Project>

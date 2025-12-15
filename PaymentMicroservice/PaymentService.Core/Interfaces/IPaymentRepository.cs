@@ -1,6 +1,6 @@
 namespace PaymentService.Core.Interfaces;
 
-public class PaymentRepository
+public interface IPaymentRepository
 {
-    
+
 }

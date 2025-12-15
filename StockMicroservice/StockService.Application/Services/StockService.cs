@@ -1,4 +1,5 @@
-﻿using StockService.Core.Entities;
+﻿using StockService.Core.Contracts;
+using StockService.Core.Entities;
 using StockService.Core.Interfaces;
 
 namespace StockService.Application.Services;
@@ -35,5 +36,26 @@ public class StockService
     public async Task<Stock> DeleteAsync(int id)
     {
         return await _stockRepository.DeleteAsync(id);
+    }
+
+    public async Task FreeProductReservation(FreeProductReservationEvent arg)
+    {
+        await _stockRepository.FreeProductReservation(arg.ProductId, arg.Quantity);
+
+    }
+
+    public async Task ReturnStock(UpdateStockEvent arg)
+    {
+        await _stockRepository.ReturnStock(arg.ProductsAndQuantities);
+    }
+
+    public async Task SellStock(UpdateStockEvent arg)
+    {
+        await _stockRepository.SellStock(arg.ProductsAndQuantities);
+    }
+
+    public async Task ReserveStockForProduct(ReserveProductEvent reserveProductEvent)
+    {
+        await _stockRepository.ReserveStockForProduct(reserveProductEvent.ProductId, reserveProductEvent.Quantity);
     }
 }
