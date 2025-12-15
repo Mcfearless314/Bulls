@@ -12,7 +12,7 @@ private readonly IPaymentRepository _paymentRepository;
         _paymentRepository = paymentRepository;
     }
 
-    public bool CreatePayment(int orderId, int userId, double amount)
+    public bool CreatePayment(int orderId, int userId, decimal amount)
     {
         var random = new Random();
         if (random.Next(1, 10) < 8)

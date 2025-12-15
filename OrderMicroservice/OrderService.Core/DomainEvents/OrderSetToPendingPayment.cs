@@ -1,6 +1,6 @@
 namespace OrderService.Core.DomainEvents;
 
-public class OrderCancelled
+public class OrderSetToPendingPayment
 {
     public int OrderId { get; set; }
 }

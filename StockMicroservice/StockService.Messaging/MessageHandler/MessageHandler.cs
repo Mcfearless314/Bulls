@@ -86,7 +86,8 @@ public class MessageHandler : IMessageHandler
             {
                 var stockUpdated = new StockUpdated
                 {
-                    OrderId = arg.OrderId
+                    OrderId = arg.OrderId,
+                    IsReleased = true
                 };
                 await _messagingClient.PublishAsync(stockUpdated);
             }
@@ -111,7 +112,8 @@ public class MessageHandler : IMessageHandler
             {
                 var stockUpdated = new StockUpdated
                 {
-                    OrderId = arg.OrderId
+                    OrderId = arg.OrderId,
+                    IsSold = true
                 };
                 await _messagingClient.PublishAsync(stockUpdated);
             }
