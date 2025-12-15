@@ -1,7 +1,9 @@
+using Newtonsoft.Json;
+
 namespace AuthenticationService;
 
 public class SecretSettings
 {
-      public string BullsToken { get; set; } = null!;
- 
+      [JsonProperty("BullsToken")]
+      public string? BullsToken { get; set; }
 }

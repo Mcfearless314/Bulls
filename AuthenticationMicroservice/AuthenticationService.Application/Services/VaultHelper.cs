@@ -1,4 +1,4 @@
-using System.Text.Json.Serialization;
+using Newtonsoft.Json.Linq;
 using Vault;
 using Vault.Client;
 using Vault.Model;
@@ -7,7 +7,12 @@ namespace AuthenticationService;
 
 public static class VaultHelper
 {
-    public static SecretSettings FetchSecretsFromVault(string vaultHostName, string username, string password)
+    public static SecretSettings? FetchSecretsFromVault(
+        string vaultHostName,
+        string vaultPath,
+        string vaultKvV2MountPath,
+        string username,
+        string password)
     {
         Console.WriteLine("Fetching secrets from Vault...");
         var config = new VaultConfiguration(vaultHostName);
@@ -18,29 +23,10 @@ public static class VaultHelper
         vaultClient.SetToken(authResponse.ResponseAuth.ClientToken);
 
         Console.WriteLine("Reading secret from Vault...");
-        VaultResponse<KvV2ReadResponse> response = vaultClient.Secrets.KvV2Read("secret", "bulls");
-        var rawData = response.Data.Data;
+        VaultResponse<KvV2ReadResponse> response = vaultClient.Secrets.KvV2Read(vaultPath, vaultKvV2MountPath);
         
-        // Convert to JSON string (handle JsonElement specially)
-        string json;
+        JObject data = (JObject)response.Data.Data;
         
-        if (rawData is System.Text.Json.JsonElement je)
-        {
-            json = je.GetRawText();
-        }
-        else
-        {
-            json = System.Text.Json.JsonSerializer.Serialize(rawData);
-        }
-
-        var options = new System.Text.Json.JsonSerializerOptions
-        {
-            PropertyNameCaseInsensitive = true
-        };
-
-        var settings = System.Text.Json.JsonSerializer.Deserialize<SecretSettings>(json, options)
-                       ?? throw new InvalidOperationException("Failed to deserialize Vault secret to SecretSettings.");
-
-        return settings;
+        return data.ToObject<SecretSettings>();
     }
 }

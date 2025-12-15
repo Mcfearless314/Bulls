@@ -1,15 +1,29 @@
 {
   "Routes": [
     {
+      "UpstreamPathTemplate": "/vault",
+      "UpstreamHttpMethod": [
+        "Post"
+      ],
+      "DownstreamPathTemplate": "/vault/credentials",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "authentication-service-api",
+          "Port": 8080
+        }
+      ]
+    },
+    {
       "UpstreamPathTemplate": "/auth",
       "UpstreamHttpMethod": [
         "Post"
       ],
-      "DownstreamPathTemplate": "/auth/credentials",
+      "DownstreamPathTemplate": "/auth/login",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "servermanagementservice-api",
+          "Host": "authentication-service-api",
           "Port": 8080
         }
       ]
