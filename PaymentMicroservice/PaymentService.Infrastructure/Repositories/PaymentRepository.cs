@@ -26,7 +26,7 @@ public class PaymentRepository : IPaymentRepository
         return createdPayment.Entity;
     }
 
-    public async Task UpdateAsync(int orderId, int userId, PaymentStatus status)
+    public async Task UpdateAsync(Guid orderId, int userId, PaymentStatus status)
     {
         var payment = await _context.Payments
             .FirstOrDefaultAsync(p => p.OrderId == orderId);

@@ -7,5 +7,5 @@ public interface IPaymentRepository
 {
     public Task<IEnumerable<Payment>> GetAllAsync();
     public Task<Payment> CreateAsync(Payment payment);
-    public Task UpdateAsync(int orderId, int userId, PaymentStatus status);
+    public Task UpdateAsync(Guid orderId, int userId, PaymentStatus status);
 }

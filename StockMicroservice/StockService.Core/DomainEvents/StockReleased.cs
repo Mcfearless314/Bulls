@@ -3,5 +3,5 @@ namespace StockService.Core.DomainEvents;
 
 public class StockReleased
 {
-    public int OrderId { get; set; }
+    public Guid OrderId { get; set; }
 }

@@ -21,7 +21,7 @@ public class OrderRepository : IOrderRepository
             .ToListAsync();
     }
 
-    public async Task<Order> GetByIdAsync(int id)
+    public async Task<Order> GetByIdAsync(Guid id)
     {
         var order = await _context.Orders
             .Include(o => o.Items)
@@ -43,7 +43,7 @@ public class OrderRepository : IOrderRepository
         return createdOrder.Entity;
     }
 
-    public async Task<Order> UpdateAsync(int id, OrderStatus status)
+    public async Task<Order> UpdateAsync(Guid id, OrderStatus status)
     {
         var order = await GetByIdAsync(id);
         order.Status = status;
@@ -51,7 +51,7 @@ public class OrderRepository : IOrderRepository
         return order;
     }
 
-    public async Task<Order> DeleteAsync(int id)
+    public async Task<Order> DeleteAsync(Guid id)
     {
         var deletedOrder = await _context.Orders.FindAsync(id);
         _context.Orders.Remove(deletedOrder);
@@ -59,7 +59,7 @@ public class OrderRepository : IOrderRepository
         return deletedOrder;
     }
 
-    public async Task AddItemToOrder(int orderId, int productId, string productName, decimal price, int quantity)
+    public async Task AddItemToOrder(Guid orderId, int productId, string productName, decimal price, int quantity)
     {
         var order = await GetByIdAsync(orderId);
 
@@ -73,7 +73,7 @@ public class OrderRepository : IOrderRepository
         });
     }
 
-    public async Task DeleteOrderItemFromOrder(int orderId, int productId, int quantity)
+    public async Task DeleteOrderItemFromOrder(Guid orderId, int productId, int quantity)
     {
         var order = await GetByIdAsync(orderId);
         var orderItem = order.Items.FirstOrDefault(oi => oi.ProductId == productId);
