@@ -12,4 +12,5 @@ public interface IOrderRepository
     public Task<Order> DeleteAsync(Guid id);
     public Task AddItemToOrder(Guid orderId, int productId, string productName, decimal price, int quantity);
     public Task DeleteOrderItemFromOrder(Guid orderId, int productId, int quantity);
+    public Task<Order?> GetActiveOrderByUserId(int i);
 }

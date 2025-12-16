@@ -35,6 +35,15 @@ public class OrderRepository : IOrderRepository
 
         return order;
     }
+    
+    public async Task<Order?> GetActiveOrderByUserId(int i)
+    {
+        var order = await _context.Orders
+            .Include(o => o.Items)
+            .FirstOrDefaultAsync(o => o.UserId == i && o.Status == OrderStatus.Initialized);
+
+        return order;
+    }
 
     public async Task<Order> CreateAsync(Order order)
     {
@@ -87,4 +96,6 @@ public class OrderRepository : IOrderRepository
             }
         }
     }
+
+
 }
