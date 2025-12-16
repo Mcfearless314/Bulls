@@ -12,7 +12,7 @@ private readonly IPaymentRepository _paymentRepository;
         _paymentRepository = paymentRepository;
     }
 
-    public bool CreatePayment(int orderId, int userId, decimal amount)
+    public bool CreatePayment(Guid orderId, int userId, decimal amount)
     {
         var random = new Random();
         if (random.Next(1, 10) < 8)
@@ -22,12 +22,12 @@ private readonly IPaymentRepository _paymentRepository;
         return true;
     }
 
-    public async Task UpdatePayment(int orderId, int userId, PaymentStatus status)
+    public async Task UpdatePayment(Guid orderId, int userId, PaymentStatus status)
     {
         await _paymentRepository.UpdateAsync(orderId, userId, status);
     }
 
-    public async Task RefundPayment(int orderId, int userId)
+    public async Task RefundPayment(Guid orderId, int userId)
     {
         await _paymentRepository.UpdateAsync(orderId, userId, PaymentStatus.Refunded);
     }

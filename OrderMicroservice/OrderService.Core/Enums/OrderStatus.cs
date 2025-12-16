@@ -2,6 +2,7 @@
 
 public enum OrderStatus
 {
+    Initialized = 0,
     PendingConfirmation = 1,
     PendingPayment = 2,
     Confirmed = 3,

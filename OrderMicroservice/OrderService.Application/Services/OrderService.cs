@@ -21,7 +21,7 @@ public class OrderService
         return await _orderRepository.GetAllAsync();
     }
 
-    public async Task<Order> GetByIdAsync(int id)
+    public async Task<Order> GetByIdAsync(Guid id)
     {
         return await _orderRepository.GetByIdAsync(id);
     }
@@ -31,22 +31,22 @@ public class OrderService
         return await _orderRepository.CreateAsync(order);
     }
 
-    public void UpdateOrderStatus(int orderId, OrderStatus orderStatus)
+    public void UpdateOrderStatus(Guid orderId, OrderStatus orderStatus)
     {
         
     }
 
-    public async Task<Order> DeleteAsync(int id)
+    public async Task<Order> DeleteAsync(Guid id)
     {
         return await _orderRepository.DeleteAsync(id);
     }
 
-    public async Task AddItemToOrderTask(int orderId, int productId, string productName, decimal price, int quantity)
+    public async Task AddItemToOrderTask(Guid orderId, int productId, string productName, decimal price, int quantity)
     {
         await _orderRepository.AddItemToOrder(orderId, productId, productName, price, quantity);
     }
 
-    public async Task ReleaseReservationOfProduct(int orderId, int productId, int quantity)
+    public async Task ReleaseReservationOfProduct(Guid orderId, int productId, int quantity)
     {
        await _orderRepository.DeleteOrderItemFromOrder(orderId, productId, quantity);
        
@@ -56,5 +56,10 @@ public class OrderService
            ProductId = productId,
            Quantity = quantity
        });
+    }
+
+    public async Order? GetActiveOrderByUserId(int i)
+    {
+        await _orderRepository.GetActiveOrderByUserId(int i)
     }
 }

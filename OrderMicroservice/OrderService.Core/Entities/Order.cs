@@ -4,7 +4,7 @@ namespace OrderService.Core.Entities;
 
 public class Order
 {
-    public int Id { get; set; }
+    public Guid Id { get; set; }
     public int UserId { get; set; }
     public OrderStatus Status { get; set; }
     public DateTime CreatedAt { get; set; }
