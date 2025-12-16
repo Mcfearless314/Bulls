@@ -1,3 +1,5 @@
+using Microsoft.EntityFrameworkCore;
+
 namespace AuthenticationService.Infrastructure;
 
 public class AppDbContext : DbContext
