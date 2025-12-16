@@ -15,13 +15,15 @@ public class JwtTokenService
         _secretSettings = secretSettings;
     }
 
-    public AuthenticationToken CreateToken()
+    public AuthenticationToken CreateToken(User user)
     {
         var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_secretSettings.BullsToken));
         var signingCredentials = new SigningCredentials(secretKey, SecurityAlgorithms.HmacSha256);
 
         var claims = new List<Claim>
         {
+            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+            new Claim(ClaimTypes.Name, user.Username),
             new Claim("scope", "bulls_management_service")
         };
 

@@ -58,8 +58,8 @@ public class OrderService
        });
     }
 
-    public async Order? GetActiveOrderByUserId(int i)
+    public async Task<Order> GetActiveOrderByUserId(int id)
     {
-        await _orderRepository.GetActiveOrderByUserId(int i)
+        throw new  NotImplementedException();
     }
 }

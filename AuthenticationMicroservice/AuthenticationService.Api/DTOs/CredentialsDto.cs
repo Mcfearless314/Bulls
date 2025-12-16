@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace AuthenticationService.DTOs;
 
-public class VaultCredentialsDto
+public class CredentialsDto
 {
     [Required]
     public string Username { get; set; }
