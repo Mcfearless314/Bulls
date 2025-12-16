@@ -10,5 +10,6 @@ public enum OrderStatus
     ErrorInStock = 6,
     CancelledByCustomer = 7,
     StockReleased = 8,
-    CancelledConfirm = 9
+    PendingRefund = 9,
+    CancelledConfirm = 10
 }

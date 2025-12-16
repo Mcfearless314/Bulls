@@ -7,7 +7,7 @@ namespace StockService.Infrastructure.Repositories;
 public class ProductRepository : IProductRepository
 {
     private readonly AppDbContext _context;
-    
+
     public ProductRepository(AppDbContext context)
     {
         _context = context;
@@ -16,6 +16,18 @@ public class ProductRepository : IProductRepository
     public async Task<IEnumerable<Product>> GetAllAsync()
     {
         return await _context.Products.ToListAsync();
+    }
+
+    public async Task<Product> GetByIdAsync(int id)
+    {
+        var product = await _context.Products.FindAsync(id);
+        if (product == null)
+        {
+            Console.WriteLine("Product not found");
+            throw new KeyNotFoundException("Product not found");
+        }
+
+        return product;
     }
 
     public async Task<Product> CreateAsync(Product product)
@@ -28,11 +40,11 @@ public class ProductRepository : IProductRepository
     public async Task<Product> UpdateAsync(Product product)
     {
         var updatedProduct = await _context.Products.FindAsync(product.Id);
-        
+
         updatedProduct.Name = product.Name;
         updatedProduct.Description = product.Description;
         updatedProduct.Price = product.Price;
-        
+
         await _context.SaveChangesAsync();
 
         return updatedProduct;

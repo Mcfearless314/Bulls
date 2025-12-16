@@ -1,4 +1,5 @@
-﻿using StockService.Core.Entities;
+﻿using StockService.Core.Contracts;
+using StockService.Core.Entities;
 using StockService.Core.Interfaces;
 
 namespace StockService.Application.Services;
@@ -15,6 +16,11 @@ public class ProductService
     public async Task<IEnumerable<Product>> GetAllAsync()
     {
         return await _productRepository.GetAllAsync();
+    }
+
+    public async Task<Product> GetByIdAsync(int id)
+    {
+        return await _productRepository.GetByIdAsync(id);
     }
 
     public async Task<Product> CreateAsync(Product product)
