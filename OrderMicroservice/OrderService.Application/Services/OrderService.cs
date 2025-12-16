@@ -58,8 +58,28 @@ public class OrderService
        });
     }
 
+    public async Task<Order?> GetActiveOrderByUserId(int i)
+    {
+        return await _orderRepository.GetActiveOrderByUserId(i);
+    }
+
+    public void ReserveProductForOrder(Guid orderId, int requestProductId, int requestQuantity)
+    {
+        throw new NotImplementedException();
+    }
+    
     public async Task<Order> GetActiveOrderByUserId(int id)
     {
         throw new  NotImplementedException();
+    }
+
+    public object? CheckoutOrder(Guid orderId)
+    {
+        throw new NotImplementedException();
+    }
+
+    public object? CancelOrder(Guid orderId)
+    {
+        throw new NotImplementedException();
     }
 }

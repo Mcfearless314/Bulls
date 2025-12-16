@@ -18,9 +18,9 @@ public class OrderController : ControllerBase
 
 
     [HttpPost("CreateOrder")]
-    public IActionResult CreateOrder()
+    public async Task<IActionResult> CreateOrder()
     {
-        var order = _orderService.GetActiveOrderByUserId(1); //TODO skal ændres til den rigtige bruger
+        var order = await _orderService.GetActiveOrderByUserId(1); //TODO skal ændres til den rigtige bruger
         if (order != null) return Ok(order);
 
         /*order = new Order
