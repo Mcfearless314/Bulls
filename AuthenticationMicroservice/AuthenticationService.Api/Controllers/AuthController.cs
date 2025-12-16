@@ -1,3 +1,4 @@
+using AuthenticationService.DTOs;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,20 +9,28 @@ namespace AuthenticationService.Controllers;
 public class AuthController : ControllerBase
 {
     private readonly JwtTokenService _jwtTokenService;
+    private readonly UserService _userService;
 
-    public AuthController(JwtTokenService jwtTokenService)
+    public AuthController(JwtTokenService jwtTokenService, UserService userService)
     {
         _jwtTokenService = jwtTokenService;
+        _userService = userService;
     }
 
     [HttpPost("login")]
-    public IActionResult Login()
+    public async Task<IActionResult> Login([FromBody] CredentialsDto dto)
     {
         AuthenticationToken token;
         
+        var user = await _userService.Login(dto.Username, dto.Password);
+        if (user == null)
+        {
+            return BadRequest("Invalid username or password");
+        }
+
         try
         {
-            token = _jwtTokenService.CreateToken();
+            token = _jwtTokenService.CreateToken(user);
         }
         catch (Exception exception)
         {

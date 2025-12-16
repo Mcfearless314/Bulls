@@ -67,6 +67,11 @@ public class OrderService
     {
         throw new NotImplementedException();
     }
+    
+    public async Task<Order> GetActiveOrderByUserId(int id)
+    {
+        throw new  NotImplementedException();
+    }
 
     public object? CheckoutOrder(Guid orderId)
     {

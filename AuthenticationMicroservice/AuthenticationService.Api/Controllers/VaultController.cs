@@ -17,7 +17,7 @@ public class VaultController : ControllerBase
     }
 
     [HttpPost("credentials")]
-    public IActionResult PostCredentials([FromBody] VaultCredentialsDto credentials)
+    public IActionResult PostCredentials([FromBody] CredentialsDto credentials)
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
         

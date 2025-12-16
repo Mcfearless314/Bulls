@@ -11,6 +11,7 @@
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.22"/>
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.9" />
     </ItemGroup>
 
     <ItemGroup>
@@ -22,6 +23,7 @@
     <ItemGroup>
       <ProjectReference Include="..\AuthenticationService.Application\AuthenticationService.Application.csproj" />
       <ProjectReference Include="..\AuthenticationService.Core\AuthenticationService.Core.csproj" />
+      <ProjectReference Include="..\AuthenticationService.Infrastructure\AuthenticationService.Infrastructure.csproj" />
     </ItemGroup>
 
 </Project>

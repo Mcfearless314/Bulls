@@ -23,14 +23,14 @@ public class OrderController : ControllerBase
         var order = await _orderService.GetActiveOrderByUserId(1); //TODO skal ændres til den rigtige bruger
         if (order != null) return Ok(order);
 
-        order = new Order
+        /*order = new Order
         {
             Id = Guid.NewGuid(),
             UserId = 1, //TODO skal ændres til den rigtige bruger
             Status = 0,
             CreatedAt = DateTime.Now,
             Items = new List<OrderItem>()
-        };
+        };*/
 
         return Ok(order);
     }
@@ -45,8 +45,7 @@ public class OrderController : ControllerBase
     [HttpPost("AddProductToOrder/{orderId}")]
     public IActionResult AddProductToOrder([FromRoute] Guid orderId, [FromBody] AddProductToOrderDto request)
     {
-        _orderService.ReserveProductForOrder(orderId, request.ProductId, request.Quantity);
-        return Ok();
+        throw new NotImplementedException();
     }
 
     [HttpDelete("RemoveProductFromOrder/{orderId}/{productId}/{quantity}")]
@@ -59,12 +58,12 @@ public class OrderController : ControllerBase
     [HttpPost("CheckoutOrder/{orderId}")]
     public IActionResult CheckoutOrder([FromRoute] Guid orderId)
     {
-        return Ok(_orderService.CheckoutOrder(orderId));
+        throw new NotImplementedException();
     }
 
     [HttpDelete("CancelOrder/{orderId}")]
     public IActionResult CancelOrder([FromRoute] Guid orderId)
     {
-        return Ok(_orderService.CancelOrder(orderId));
+        throw new NotImplementedException();
     }
 }

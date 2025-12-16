@@ -33,6 +33,21 @@
     build:
       context: .
       dockerfile: AuthenticationMicroservice/AuthenticationService.Api/Dockerfile
+    depends_on:
+      apigateway:
+        condition: service_started
+      authentication-db:
+        condition: service_started
+    networks:
+      - microservices
+  
+  authentication-db:
+    image: mcr.microsoft.com/azure-sql-edge:latest
+    environment:
+      MSSQL_SA_PASSWORD: "SuperSecret7!"
+      ACCEPT_EULA: "Y"
+    volumes:
+      - authentication-data:/var/opt/mssql
     networks:
       - microservices
       
@@ -46,6 +61,8 @@
     depends_on:
       apigateway:
         condition: service_started
+      rmq:
+        condition: service_started  
       stock-db:
         condition: service_started
     networks:
@@ -72,6 +89,8 @@
     depends_on:
       apigateway:
         condition: service_started
+      rmq:
+        condition: service_started
       order-db:
         condition: service_started
     networks:
@@ -87,6 +106,23 @@
       - order-data:/var/opt/mssql
     networks:
       - microservices
+        
+  rmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    healthcheck:
+      test: [ "CMD", "rabbitmq-diagnostics", "check_running" ]
+      interval: 5s
+      timeout: 10s
+      retries: 5
+    networks:
+      - microservices
       
       
 networks:
@@ -96,3 +132,4 @@ networks:
 volumes:
   stock-data:
   order-data:
+  authentication-data:
