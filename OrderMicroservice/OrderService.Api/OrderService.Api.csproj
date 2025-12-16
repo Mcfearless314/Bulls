@@ -6,6 +6,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
         <RootNamespace>OrderService</RootNamespace>
+        <UserSecretsId>aca3c4b5-b86e-4fdb-a6fa-986193ec6d40</UserSecretsId>
     </PropertyGroup>
 
     <ItemGroup>

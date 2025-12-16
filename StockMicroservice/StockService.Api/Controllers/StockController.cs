@@ -5,7 +5,7 @@ using StockService.DTOs;
 namespace StockService.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[Route("api/[controller]")]
 public class StockController : ControllerBase
 {
     private readonly Application.Services.StockService _stockService;

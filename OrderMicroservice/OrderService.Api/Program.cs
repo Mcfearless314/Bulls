@@ -28,14 +28,14 @@ builder.Services.AddScoped<OrderService.Application.Services.OrderService>();
 builder.Services.AddSingleton<IBus>(sp =>
 {
     var configuration = sp.GetRequiredService<IConfiguration>();
-    var rmqPassword = configuration.GetSection("rmq")["password"];
-    var rmqUsername = configuration.GetSection("rmq")["username"];
+    var rmqPassword = configuration.GetSection("rmq")["password"]; // TODO: Figure out why with the secrets.json file
+    var rmqUsername = configuration.GetSection("rmq")["username"]; // TODO: Figure out why with the secrets.json file
     
     for (int i = 0; i < 10; i++)
     {
         try
         {
-            var bus = RabbitHutch.CreateBus($"host=rmq;virtualHost=/;username={rmqUsername};password={rmqPassword}");
+            var bus = RabbitHutch.CreateBus($"host=rmq;virtualHost=/;username=guest;password=guest"); // TODO: Figure out why with the secrets.json file
             Console.WriteLine($"EasyNetQ connected to rabbitmq on attempt {i+1}");
             return bus;
         }
@@ -65,7 +65,4 @@ app.UseSwaggerUI();
 app.MapControllers();
 app.UseHttpsRedirection();
 
-
-
-app.UseHttpsRedirection();
 app.Run();
