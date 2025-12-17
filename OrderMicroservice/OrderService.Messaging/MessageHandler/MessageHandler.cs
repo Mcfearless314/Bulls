@@ -18,132 +18,75 @@ public class MessageHandler : IMessageHandler
 
     public async Task Subscribe(CancellationToken cancellationToken)
     {
-        await _messageClient.SubscribeAsync<StockUpdated>("stock-updated", StockUpdated, cancellationToken);
-
-        await _messageClient.SubscribeAsync<PaymentSucceeded>("payment-succeeded", PaymentSucceeded, cancellationToken);
-
-        await _messageClient.SubscribeAsync<PaymentRefunded>("payment-refunded", PaymentRefunded, cancellationToken);
+       
+        await _messageClient.SubscribeAsync<PlaceOrderFailedEvent>("place-order-failed", PlaceOrderFailed, cancellationToken);
+        
+        await _messageClient.SubscribeAsync<ConfirmOrderEvent>("place-order-failed", ConfirmOrder, cancellationToken);
     }
 
-    #region StockUpdated
-
-    private async Task StockUpdated(StockUpdated arg)
+    #region PlaceOrderFailed
+    
+    private async Task PlaceOrderFailed(PlaceOrderFailedEvent arg)
     {
-        if (arg.IsSold.HasValue && arg.IsSold.Value)
-        {
-            try
-            {
-                _orderService.UpdateOrderStatus(arg.OrderId, OrderStatus.PendingPayment);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Error updating order status: " + ex.Message);
-                var settingOrderToPendingPaymentFailed = new SettingOrderToPendingPaymentFailed
-                {
-                    OrderId = arg.OrderId,
-                    Reason = ex.Message
-                };
-                await _messageClient.PublishAsync(settingOrderToPendingPaymentFailed);
-            }
-            finally
-            {
-                var orderSetToPendingPayment = new OrderSetToPendingPayment
-                {
-                    OrderId = arg.OrderId
-                };
-                await _messageClient.PublishAsync(orderSetToPendingPayment);
-            }
-        }
-        else if (arg.IsReleased.HasValue && arg.IsReleased.Value)
-        {
-            try
-            {
-                _orderService.UpdateOrderStatus(arg.OrderId, OrderStatus.PendingRefund);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Error updating order status: " + ex.Message);
-                var orderCancellationFailed = new OrderCancellationFailed()
-                {
-                    OrderId = arg.OrderId,
-                    Reason = ex.Message
-                };
-                await _messageClient.PublishAsync(orderCancellationFailed);
-            }
-            finally
-            {
-                var orderCancelled = new OrderCancelled
-                {
-                    OrderId = arg.OrderId
-                };
-                await _messageClient
-                    .PublishAsync(
-                        orderCancelled); //TODO vi skal sørge for at Saga ved den skal refunderer når den får dette event
-            }
-        }
-    }
-
-    #endregion
-
-    #region PaymentSucceeded
-
-    private async Task PaymentSucceeded(PaymentSucceeded arg)
-    {
+        Console.WriteLine("PlaceOrderFailed triggered");
         try
         {
-            _orderService.UpdateOrderStatus(arg.OrderId, OrderStatus.Confirmed);
+            if (arg.PaymentFail)
+                await _orderService.UpdateOrderStatus(arg.OrderId, OrderStatus.PaymentFailed);
+            if (arg.StockFail)
+                await _orderService.UpdateOrderStatus(arg.OrderId, OrderStatus.ErrorInStock);
         }
         catch (Exception ex)
         {
-            Console.WriteLine("Error updating order status: " + ex.Message);
-            var orderConfirmFailed = new OrderConfirmFailed
+            var orderMarkedAsFailed = new OrderMarkedAsFailed
             {
                 OrderId = arg.OrderId,
-                Reason = ex.Message
+                Success = false
             };
-            await _messageClient.PublishAsync(orderConfirmFailed);
+            await _messageClient.PublishAsync(orderMarkedAsFailed);
         }
         finally
         {
-            var orderSetToCompleted = new OrderConfirmed()
-            {
-                OrderId = arg.OrderId
-            };
-            await _messageClient.PublishAsync(orderSetToCompleted);
-        }
-    }
-
-    #endregion
-
-    #region PaymentRefunded
-
-    private async Task PaymentRefunded(PaymentRefunded arg)
-    {
-        try
-        {
-            _orderService.UpdateOrderStatus(arg.OrderId, OrderStatus.CancelledConfirm);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine("Error updating order status: " + ex.Message);
-            var orderCancellationFailed = new OrderCancellationFailed()
+            var orderMarkedAsFailed = new OrderMarkedAsFailed
             {
                 OrderId = arg.OrderId,
-                Reason = ex.Message
+                Success = true
             };
-            await _messageClient.PublishAsync(orderCancellationFailed);
+            await _messageClient.PublishAsync(orderMarkedAsFailed);
         }
-        finally
-        {
-            var orderCancelled = new OrderCancelled
-            {
-                OrderId = arg.OrderId
-            };
-            await _messageClient.PublishAsync(orderCancelled);
-        }
+
     }
 
     #endregion
     
+    #region ConfirmOrder
+    
+    private async Task ConfirmOrder(ConfirmOrderEvent arg)
+    {
+        Console.WriteLine("ConfirmOrder triggered");
+        try
+        {
+            await _orderService.UpdateOrderStatus(arg.OrderId, OrderStatus.Confirmed);
+        }
+        catch (Exception ex)
+        {
+            var confirmOrderFailed = new OrderConfirmFailed
+            {
+                OrderId = arg.OrderId,
+                Reason = ex.Message,
+            };
+            await _messageClient.PublishAsync(confirmOrderFailed);
+        }
+        finally
+        {
+            var orderConfirmed = new OrderConfirmed
+            {
+                OrderId = arg.OrderId
+            };
+            await _messageClient.PublishAsync(orderConfirmed);
+        }
+    }
+    
+    #endregion 
     
 }

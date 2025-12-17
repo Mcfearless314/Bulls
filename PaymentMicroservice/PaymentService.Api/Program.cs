@@ -2,6 +2,7 @@ using EasyNetQ;
 using Microsoft.EntityFrameworkCore;
 using PaymentService.Core.Interfaces;
 using PaymentService.Infrastructure;
+using PaymentService.Infrastructure.Repositories;
 using PaymentService.Messaging;
 using PaymentService.Messaging.MessageBackgroundService;
 using PaymentService.Messaging.MessageHandler;
@@ -21,7 +22,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
             errorNumbersToAdd: null);
     }));
 
-builder.Services.AddScoped<IPaymentRepository, IPaymentRepository>();
+builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 builder.Services.AddScoped<PaymentService.Application.Services.PaymentService>();
 builder.Services.AddScoped<IMessageClient, EasyNetQMessageClient>();
 builder.Services.AddScoped<IMessageHandler, MessageHandler>();

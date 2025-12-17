@@ -30,6 +30,7 @@ public class MessageHandler : IMessageHandler
 
     private async Task HandlePayment(PaymentRequestEvent arg)
     {
+        Console.WriteLine("Processing payment request");
         var isPaid = false;
         try
         {
@@ -63,6 +64,7 @@ public class MessageHandler : IMessageHandler
 
     private async Task HandlePaymentRefund(PaymentRefundEvent arg)
     {
+        Console.WriteLine("Processing payment refund request");
         try
         {
             await _paymentService.RefundPayment(arg.OrderId, arg.UserId);

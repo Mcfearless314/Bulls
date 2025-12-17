@@ -3,6 +3,7 @@ using StockService.Application.Services;
 using StockService.Core.Contracts;
 using StockService.Core.DomainEvents;
 using StockService.Core.Entities;
+using StockService.Core.Exchanges;
 
 namespace StockService.Messaging.MessageHandler;
 
@@ -22,13 +23,15 @@ public class MessageHandler : IMessageHandler
 
     public async Task Subscribe(CancellationToken cancellationToken)
     {
-        await _messagingClient.SubscribeAsync<FreeProductReservationEvent>("free-product-reservation",
+        await _messagingClient.SubscribeAsync<FreeProductReservationEvent>(StockEvent.FreeProductReservationEvent,
             FreeProductReservation, cancellationToken);
 
-        await _messagingClient.SubscribeAsync<UpdateStockEvent>("update-stock", UpdateStock, cancellationToken);
+        await _messagingClient.SubscribeAsync<CancelStockEvent>(StockEvent.CancelStockEvent, ReleaseStock, cancellationToken);
 
-        await _messagingClient.SubscribeAsync<ReserveProductEvent>("reserve-product", ReserveProduct,
+        await _messagingClient.SubscribeAsync<ReserveProductEvent>(StockEvent.ReserveProductEvent, ReserveProduct,
             cancellationToken);
+
+        await _messagingClient.SubscribeAsync<SellStockEvent>(StockEvent.SellStockEvent, SellStock, cancellationToken);
     }
 
 
@@ -62,61 +65,63 @@ public class MessageHandler : IMessageHandler
 
     #endregion
 
-    #region UpdateStock
+    #region ReleaseStock
 
-    private async Task UpdateStock(UpdateStockEvent arg)
+    private async Task ReleaseStock(CancelStockEvent arg)
     {
-        if (arg.IsCancelled)
+        Console.WriteLine("Return stock triggered");
+        try
         {
-            try
-            {
-                await _stockService.ReturnStock(arg);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error handling UpdateStockEvent: {ex.Message}");
-                var stockUpdateFailed = new StockUpdateFailed
-                {
-                    OrderId = arg.OrderId,
-                    Reason = ex.Message
-                };
-                await _messagingClient.PublishAsync(stockUpdateFailed);
-            }
-            finally
-            {
-                var stockUpdated = new StockUpdated
-                {
-                    OrderId = arg.OrderId,
-                    IsReleased = true
-                };
-                await _messagingClient.PublishAsync(stockUpdated);
-            }
+            await _stockService.ReturnStock(arg);
         }
-        else if (arg.IsSold)
+        catch (Exception ex)
         {
-            try
+            Console.WriteLine($"Error handling ReleaseStockEvent: {ex.Message}");
+            var stockReleaseFailed = new StockCancelledFailed()
             {
-                await _stockService.SellStock(arg);
-            }
-            catch (Exception ex)
+                OrderId = arg.OrderId,
+                Reason = ex.Message
+            };
+            await _messagingClient.PublishAsync(stockReleaseFailed);
+        }
+        finally
+        {
+            var stockReleased = new StockCancelled
             {
-                Console.WriteLine($"Error handling UpdateStockEvent: {ex.Message}");
-                var stockUpdateFailed = new StockUpdateFailed
-                {
-                    OrderId = arg.OrderId,
-                    Reason = ex.Message
-                };
-                await _messagingClient.PublishAsync(stockUpdateFailed);
-            }
-            finally
+                OrderId = arg.OrderId,
+            };
+            await _messagingClient.PublishAsync(stockReleased);
+        }
+    }
+
+    #endregion
+
+    #region SellStock
+
+    private async Task SellStock(SellStockEvent arg)
+    {
+        Console.WriteLine("Sell stock triggered");
+        try
+        {
+            await _stockService.SellStock(arg);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error handling UpdateStockEvent: {ex.Message}");
+            var stockSoldFailed = new StockSoldFailed
             {
-                var stockUpdated = new StockUpdated
-                {
-                    OrderId = arg.OrderId,
-                    IsSold = true
-                };
-                await _messagingClient.PublishAsync(stockUpdated);
-            }
+                OrderId = arg.OrderId,
+                Reason = ex.Message
+            };
+            await _messagingClient.PublishAsync(stockSoldFailed);
+        }
+        finally
+        {
+            var stockSold = new StockSold
+            {
+                OrderId = arg.OrderId,
+            };
+            await _messagingClient.PublishAsync(stockSold);
         }
     }
 

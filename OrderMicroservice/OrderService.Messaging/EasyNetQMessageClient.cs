@@ -1,5 +1,9 @@
+using System.Text;
 using EasyNetQ;
+using EasyNetQ.Topology;
 using OrderService.Core.Interfaces;
+using System.Text.Json;
+using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace OrderService.Messaging;
 
@@ -17,6 +21,31 @@ public class EasyNetQMessageClient : IMessageClient
         Console.WriteLine($"Publishing event: {typeof(T).Name} - {System.Text.Json.JsonSerializer.Serialize(@event)}");
         await _bus.PubSub.PublishAsync(@event);
     }
+
+    public Task PublishTestAsync<T>(T message, string exchangeName) where T : class
+    {
+        var exchange = _bus.Advanced.ExchangeDeclare(
+            exchangeName,
+            ExchangeType.Fanout,
+            durable: true
+        );
+
+        var json = JsonSerializer.Serialize(message);
+        var body = Encoding.UTF8.GetBytes(json);
+
+        var msg = new Message<byte[]>(body); 
+
+        _bus.Advanced.Publish(
+            exchange,
+            routingKey: "",
+            mandatory: false,
+            message: msg
+        );
+
+        return Task.CompletedTask;
+    }
+
+
 
     public async Task SubscribeAsync<T>(string subscriptionId, Func<T, Task> onMessage, CancellationToken cancellationToken) where T : class
     {

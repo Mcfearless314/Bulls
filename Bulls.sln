@@ -45,7 +45,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaymentService.Messaging", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StockService.Messaging", "StockMicroservice\StockService.Messaging\StockService.Messaging.csproj", "{35502A76-E440-47B8-A1D8-2815C4764D12}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrderSagaService", "OrchestrationService\OrderSagaService\OrderSagaService.csproj", "{7B407C97-B091-4890-A03A-ABAC25A657A5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrderSagaService", "OrchestrationService\OrderSagaService\OrderSagaService.csproj", "{D3F5369B-6CA4-40DE-894F-E36728006654}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -133,9 +133,9 @@ Global
 		{35502A76-E440-47B8-A1D8-2815C4764D12}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{35502A76-E440-47B8-A1D8-2815C4764D12}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{35502A76-E440-47B8-A1D8-2815C4764D12}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7B407C97-B091-4890-A03A-ABAC25A657A5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7B407C97-B091-4890-A03A-ABAC25A657A5}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7B407C97-B091-4890-A03A-ABAC25A657A5}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7B407C97-B091-4890-A03A-ABAC25A657A5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D3F5369B-6CA4-40DE-894F-E36728006654}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D3F5369B-6CA4-40DE-894F-E36728006654}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D3F5369B-6CA4-40DE-894F-E36728006654}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D3F5369B-6CA4-40DE-894F-E36728006654}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

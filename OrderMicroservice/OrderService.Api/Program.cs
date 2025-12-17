@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using OrderService.Core.Interfaces;
 using OrderService.Infrastructure;
 using OrderService.Infrastructure.Repositories;
+using OrderService.Messaging;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,6 +24,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 builder.Services.AddScoped<DbInitializer>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+builder.Services.AddScoped<IMessageClient, EasyNetQMessageClient>();
 builder.Services.AddScoped<OrderService.Application.Services.OrderService>();
 
 builder.Services.AddSingleton<IBus>(sp =>

@@ -7,6 +7,6 @@ public class Payment
     public int Id { get; set; }
     public Guid OrderId { get; set; }
     public int UserId { get; set; }
-    public decimal Amount { get; set; }
+    public double Amount { get; set; }
     public PaymentStatus Status { get; set; }
 }
