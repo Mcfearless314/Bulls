@@ -12,7 +12,6 @@
       - default
       - microservices
 
-  # Unseal manually after starting so it can be used
   vault:
     image: hashicorp/vault
     container_name: bulls-vault
@@ -33,6 +32,8 @@
     build:
       context: .
       dockerfile: AuthenticationMicroservice/AuthenticationService.Api/Dockerfile
+    env_file:
+      - .env
     depends_on:
       apigateway:
         condition: service_started
@@ -44,18 +45,18 @@
   authentication-db:
     image: mcr.microsoft.com/azure-sql-edge:latest
     environment:
-      MSSQL_SA_PASSWORD: "SuperSecret7!"
+      MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD}
       ACCEPT_EULA: "Y"
     volumes:
       - authentication-data:/var/opt/mssql
     networks:
       - microservices
     healthcheck:
-      test: [ "CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P SuperSecret7! -Q \"SELECT 1\" > /dev/null || exit 1" ]
+      test: [ "CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P \"$MSSQL_SA_PASSWORD\" -Q \"SELECT 1\" > /dev/null || exit 1" ]
       interval: 5s
-      timeout: 2s
+      timeout: 10s
       retries: 5
-      start_period: 2s
+      start_period: 30s
         
   stock-service:
     image: stockservice
@@ -64,6 +65,8 @@
       dockerfile: StockMicroservice/StockService.Api/Dockerfile
     ports:
       - "5001:8080"
+    env_file:
+      - .env
     depends_on:
       apigateway:
         condition: service_started
@@ -78,8 +81,10 @@
   stock-db:
     image: mcr.microsoft.com/azure-sql-edge:latest
     environment:
-      MSSQL_SA_PASSWORD: "SuperSecret7!"
+      MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD}
       ACCEPT_EULA: "Y"
+    env_file:
+      - .env
     volumes:
       - stock-data:/var/opt/mssql
     networks:
@@ -92,6 +97,8 @@
       dockerfile: OrderMicroservice/OrderService.Api/Dockerfile
     ports:
       - "5002:8080"
+    env_file:
+      - .env
     depends_on:
       apigateway:
         condition: service_started
@@ -106,8 +113,10 @@
   order-db:
     image: mcr.microsoft.com/azure-sql-edge:latest
     environment:
-      MSSQL_SA_PASSWORD: "SuperSecret7!"
+      MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD}
       ACCEPT_EULA: "Y"
+    env_file:
+      - .env
     volumes:
       - order-data:/var/opt/mssql
     networks:
@@ -118,6 +127,8 @@
     build:
       context: .
       dockerfile: PaymentMicroservice/PaymentService.Api/Dockerfile
+    env_file:
+      - .env
     depends_on:
       apigateway:
         condition: service_started
@@ -132,8 +143,10 @@
   payment-db:
     image: mcr.microsoft.com/azure-sql-edge:latest
     environment:
-      MSSQL_SA_PASSWORD: "SuperSecret7!"
+      MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD}
       ACCEPT_EULA: "Y"
+    env_file:
+      - .env
     volumes:
       - payment-data:/var/opt/mssql
     networks:
@@ -144,6 +157,8 @@
     build:
       context: .
       dockerfile: OrchestrationService/OrderSagaService/Dockerfile
+    env_file:
+      - .env
     depends_on:
       rmq:
         condition: service_healthy
@@ -163,8 +178,10 @@
       - "5672:5672"
       - "15672:15672"
     environment:
-      RABBITMQ_DEFAULT_USER: guest
-      RABBITMQ_DEFAULT_PASS: guest
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
+    env_file:
+      - .env
     healthcheck:
       test: [ "CMD", "rabbitmq-diagnostics", "check_running" ]
       interval: 5s

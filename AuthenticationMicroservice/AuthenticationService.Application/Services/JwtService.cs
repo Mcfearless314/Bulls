@@ -1,10 +1,11 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using AuthenticationService.Core.Entities;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.IdentityModel.Tokens;
 
-namespace AuthenticationService;
+namespace AuthenticationService.Application.Services;
 
 public class JwtTokenService
 {

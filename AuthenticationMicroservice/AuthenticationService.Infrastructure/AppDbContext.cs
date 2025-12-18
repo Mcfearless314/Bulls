@@ -1,3 +1,4 @@
+using AuthenticationService.Core.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace AuthenticationService.Infrastructure;

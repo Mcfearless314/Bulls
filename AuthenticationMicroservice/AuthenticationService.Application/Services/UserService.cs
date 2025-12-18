@@ -1,6 +1,7 @@
-﻿using AuthenticationService.Core.Interfaces;
+﻿using AuthenticationService.Core.Entities;
+using AuthenticationService.Core.Interfaces;
 
-namespace AuthenticationService;
+namespace AuthenticationService.Application.Services;
 
 public class UserService
 {

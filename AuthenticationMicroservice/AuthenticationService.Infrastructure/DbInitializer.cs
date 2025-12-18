@@ -1,3 +1,5 @@
+using AuthenticationService.Core.Entities;
+
 namespace AuthenticationService.Infrastructure;
 
 public class DbInitializer
