@@ -20,7 +20,7 @@ Base URL: `http://localhost:5000`
 500 Error - Failed to fetch secrets from vault
 
 ### Login 
-- **URL:** `/vault`  
+- **URL:** `/auth`  
 - **Method:** `POST`  
 - **Authentication:** None  
 - **Description:** Login and retrieve token.
@@ -49,7 +49,7 @@ Response:
 202 Accepted 
 
 ### Get Order Status
-- **URL:** `/api/order/place-order/{orderId}`  
+- **URL:** `/api/order/get-order-status/{orderId}`  
 - **Method:** `GET`  
 - **Description:** Retrieves order status to confirm order has been placed.
 
