@@ -35,7 +35,7 @@ public class AuthController : ControllerBase
         }
         catch (Exception exception)
         {
-            return Unauthorized("Token generation failed, please login first.");
+            return Unauthorized($"Token generation failed, please login first: {exception.Message},{exception.StackTrace}");
         }
         
         return Ok(token);

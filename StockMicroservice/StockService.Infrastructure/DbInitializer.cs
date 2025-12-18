@@ -22,7 +22,7 @@ public class DbInitializer
         var stock = new List<Stock>
         {
             new Stock {ProductId = 1, Quantity = 10, ReservedQuantity = 2},
-            new Stock {ProductId = 2, Quantity = 10},
+            new Stock {ProductId = 2, Quantity = 10, ReservedQuantity = 2},
             new Stock {ProductId = 3, Quantity= 50, ReservedQuantity = 1},
         };
         

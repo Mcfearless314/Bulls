@@ -29,7 +29,21 @@ public class OrderController : ControllerBase
         var orderStatus = await _orderService.GetOrderStatus(orderId);
         return Ok(orderStatus);
     }
-    
+
+    [HttpGet("GetOrderById/{orderId}")]
+    public async Task<IActionResult> GetOrderById([FromRoute] Guid orderId)
+    {
+        try
+        {
+            var order = await _orderService.GetByIdAsync(orderId);
+            return Ok(order);
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound($"Order with ID {orderId} not found.");
+        }
+    }
+
 
     [HttpGet("GetActiveOrderByUserId")]
     public async Task<IActionResult> GetActiveOrderByUserId([FromQuery] int userId)

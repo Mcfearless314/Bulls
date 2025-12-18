@@ -31,7 +31,7 @@
     {
       "UpstreamPathTemplate": "/api/order/place-order/{orderId}",
       "UpstreamHttpMethod": [
-        "Get"
+        "Post"
       ],
       "DownstreamPathTemplate": "/api/order/place-order/{orderId}",
       "DownstreamScheme": "http",
@@ -129,87 +129,7 @@
       }
     },
     {
-      "UpstreamPathTemplate": "/api/product",
-      "UpstreamHttpMethod": [
-        "Get"
-      ],
-      "DownstreamPathTemplate": "/api/product",
-      "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [
-        {
-          "Host": "stock-service",
-          "Port": 8080
-        }
-      ],
-      "AuthenticationOptions": {
-        "AuthenticationProviderKey": "Bearer",
-        "AllowedScopes": [
-          "bulls_management_service"
-        ]
-      }
-    },
-    {
-      "UpstreamPathTemplate": "/api/product",
-      "UpstreamHttpMethod": [
-        "Post"
-      ],
-      "DownstreamPathTemplate": "/api/product",
-      "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [
-        {
-          "Host": "stock-service",
-          "Port": 8080
-        }
-      ],
-      "AuthenticationOptions": {
-        "AuthenticationProviderKey": "Bearer",
-        "AllowedScopes": [
-          "bulls_management_service"
-        ]
-      }
-    },
-    {
-      "UpstreamPathTemplate": "/api/product",
-      "UpstreamHttpMethod": [
-        "Put"
-      ],
-      "DownstreamPathTemplate": "/api/product",
-      "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [
-        {
-          "Host": "stock-service",
-          "Port": 8080
-        }
-      ],
-      "AuthenticationOptions": {
-        "AuthenticationProviderKey": "Bearer",
-        "AllowedScopes": [
-          "bulls_management_service"
-        ]
-      }
-    },
-    {
-      "UpstreamPathTemplate": "/api/product",
-      "UpstreamHttpMethod": [
-        "Delete"
-      ],
-      "DownstreamPathTemplate": "/api/product",
-      "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [
-        {
-          "Host": "stock-service",
-          "Port": 8080
-        }
-      ],
-      "AuthenticationOptions": {
-        "AuthenticationProviderKey": "Bearer",
-        "AllowedScopes": [
-          "bulls_management_service"
-        ]
-      }
-    },
-    {
-      "UpstreamPathTemplate": "/api/stock",
+      "UpstreamPathTemplate": "/api/stock/getallstock",
       "UpstreamHttpMethod": [
         "Get"
       ],
@@ -229,75 +149,15 @@
       }
     },
     {
-      "UpstreamPathTemplate": "/api/stock/{id}",
+      "UpstreamPathTemplate": "/api/order/getorderbyid/{orderId}",
       "UpstreamHttpMethod": [
         "Get"
       ],
-      "DownstreamPathTemplate": "/api/stock/{id}",
+      "DownstreamPathTemplate": "/api/order/GetOrderById/{orderId}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "stock-service",
-          "Port": 8080
-        }
-      ],
-      "AuthenticationOptions": {
-        "AuthenticationProviderKey": "Bearer",
-        "AllowedScopes": [
-          "bulls_management_service"
-        ]
-      }
-    },
-    {
-      "UpstreamPathTemplate": "/api/stock",
-      "UpstreamHttpMethod": [
-        "Post"
-      ],
-      "DownstreamPathTemplate": "/api/stock",
-      "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [
-        {
-          "Host": "stock-service",
-          "Port": 8080
-        }
-      ],
-      "AuthenticationOptions": {
-        "AuthenticationProviderKey": "Bearer",
-        "AllowedScopes": [
-          "bulls_management_service"
-        ]
-      }
-    },
-    {
-      "UpstreamPathTemplate": "/api/stock",
-      "UpstreamHttpMethod": [
-        "Put"
-      ],
-      "DownstreamPathTemplate": "/api/stock",
-      "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [
-        {
-          "Host": "stock-service",
-          "Port": 8080
-        }
-      ],
-      "AuthenticationOptions": {
-        "AuthenticationProviderKey": "Bearer",
-        "AllowedScopes": [
-          "bulls_management_service"
-        ]
-      }
-    },
-    {
-      "UpstreamPathTemplate": "/api/stock/{id}",
-      "UpstreamHttpMethod": [
-        "Delete"
-      ],
-      "DownstreamPathTemplate": "/api/stock/{id}",
-      "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [
-        {
-          "Host": "stock-service",
+          "Host": "order-service",
           "Port": 8080
         }
       ],
