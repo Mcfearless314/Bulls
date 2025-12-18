@@ -1,3 +1,4 @@
+using PaymentService.Core.Entities;
 using PaymentService.Core.Enums;
 using PaymentService.Core.Interfaces;
 
@@ -12,13 +13,30 @@ private readonly IPaymentRepository _paymentRepository;
         _paymentRepository = paymentRepository;
     }
 
-    public bool CreatePayment(Guid orderId, int userId, decimal amount)
+    public bool CreatePayment(Guid orderId, int userId, double amount)
     {
         var random = new Random();
         if (random.Next(1, 10) < 8)
         {
+            Console.WriteLine("Payment failed");
+            var failedPayment = new Payment
+            {
+                OrderId = orderId,
+                UserId = userId,
+                Amount = amount,
+                Status = PaymentStatus.Failed,
+            };
+            _paymentRepository.CreateAsync(failedPayment);
             throw new Exception("Payment processing failed due to insufficient funds.");
         }
+        var payment = new Payment
+        {
+            OrderId = orderId,
+            UserId = userId,
+            Amount = amount,
+            Status = PaymentStatus.Confirmed
+        };
+        _paymentRepository.CreateAsync(payment);
         return true;
     }
 

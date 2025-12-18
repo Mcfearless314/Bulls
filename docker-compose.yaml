@@ -106,6 +106,49 @@
       - order-data:/var/opt/mssql
     networks:
       - microservices
+   
+  payment-service:
+    image: paymentservice
+    build:
+      context: .
+      dockerfile: PaymentMicroservice/PaymentService.Api/Dockerfile
+    depends_on:
+      apigateway:
+        condition: service_started
+      rmq:
+        condition: service_healthy
+      payment-db:
+        condition: service_started
+    networks:
+      - default
+      - microservices
+
+  payment-db:
+    image: mcr.microsoft.com/azure-sql-edge:latest
+    environment:
+      MSSQL_SA_PASSWORD: "SuperSecret7!"
+      ACCEPT_EULA: "Y"
+    volumes:
+      - payment-data:/var/opt/mssql
+    networks:
+      - microservices
+  
+  
+  order-saga:
+    build:
+      context: .
+      dockerfile: OrchestrationService/OrderSagaService/Dockerfile
+    depends_on:
+      rmq:
+        condition: service_healthy
+      order-service:
+        condition: service_started
+      stock-service:
+        condition: service_started
+      payment-service:
+        condition: service_started
+    networks:
+      - microservices
         
   rmq:
     image: rabbitmq:3-management
@@ -123,6 +166,7 @@
       retries: 5
     networks:
       - microservices
+      - default
       
       
 networks:
@@ -132,4 +176,5 @@ networks:
 volumes:
   stock-data:
   order-data:
+  payment-data:
   authentication-data:

@@ -44,12 +44,12 @@ public class StockService
 
     }
 
-    public async Task ReturnStock(UpdateStockEvent arg)
+    public async Task ReturnStock(CancelStockEvent arg)
     {
         await _stockRepository.ReturnStock(arg.ProductsAndQuantities);
     }
 
-    public async Task SellStock(UpdateStockEvent arg)
+    public async Task SellStock(SellStockEvent arg)
     {
         await _stockRepository.SellStock(arg.ProductsAndQuantities);
     }

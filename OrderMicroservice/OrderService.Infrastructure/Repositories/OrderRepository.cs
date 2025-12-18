@@ -68,7 +68,7 @@ public class OrderRepository : IOrderRepository
         return deletedOrder;
     }
 
-    public async Task AddItemToOrder(Guid orderId, int productId, string productName, decimal price, int quantity)
+    public async Task AddItemToOrder(Guid orderId, int productId, string productName, double price, int quantity)
     {
         var order = await GetByIdAsync(orderId);
 
