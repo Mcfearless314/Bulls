@@ -44,6 +44,12 @@ public class MessageHandler : IMessageHandler
         try
         {
             await _stockService.FreeProductReservation(arg);
+            
+            var stockReleased = new StockReleased
+            {
+                OrderId = arg.OrderId
+            };
+            await _messagingClient.PublishAsync(stockReleased, StockEvent.StockReleased);
         }
         catch (Exception ex)
         {
@@ -54,14 +60,6 @@ public class MessageHandler : IMessageHandler
                 Reason = ex.Message
             };
             await _messagingClient.PublishAsync(stockReleasedFailed, StockEvent.FreeProductReservationEvent);
-        }
-        finally
-        {
-            var stockReleased = new StockReleased
-            {
-                OrderId = arg.OrderId
-            };
-            await _messagingClient.PublishAsync(stockReleased, StockEvent.StockReleased);
         }
     }
 
@@ -74,7 +72,13 @@ public class MessageHandler : IMessageHandler
         Console.WriteLine("Return stock triggered");
         try
         {
-            await _stockService.ReturnStock(arg);
+            await _stockService.CancelStock(arg);
+            
+            var stockCancelled = new StockCancelled
+            {
+                OrderId = arg.OrderId,
+            };
+            await _messagingClient.PublishAsync(stockCancelled, StockEvent.StockCancelled);
         }
         catch (Exception ex)
         {
@@ -85,14 +89,6 @@ public class MessageHandler : IMessageHandler
                 Reason = ex.Message
             };
             await _messagingClient.PublishAsync(stockCancelledFailed, StockEvent.StockCancelledFailed);
-        }
-        finally
-        {
-            var stockCancelled = new StockCancelled
-            {
-                OrderId = arg.OrderId,
-            };
-            await _messagingClient.PublishAsync(stockCancelled, StockEvent.StockCancelledFailed);
         }
     }
 
@@ -106,6 +102,12 @@ public class MessageHandler : IMessageHandler
         try
         {
             await _stockService.SellStock(arg);
+            
+            var stockSold = new StockSold
+            {
+                OrderId = arg.OrderId,
+            };
+            await _messagingClient.PublishAsync(stockSold, StockEvent.StockSold);
         }
         catch (Exception ex)
         {
@@ -117,14 +119,6 @@ public class MessageHandler : IMessageHandler
             };
             await _messagingClient.PublishAsync(stockSoldFailed, StockEvent.StockSoldFailed);
         }
-        finally
-        {
-            var stockSold = new StockSold
-            {
-                OrderId = arg.OrderId,
-            };
-            await _messagingClient.PublishAsync(stockSold, StockEvent.StockSold);
-        }
     }
 
     #endregion
@@ -133,11 +127,20 @@ public class MessageHandler : IMessageHandler
 
     private async Task ReserveProduct(ReserveProductEvent arg)
     {
-        var product = new Product();
         try
         {
             await _stockService.ReserveStockForProduct(arg);
-            product = await _productService.GetByIdAsync(arg.ProductId);
+            var product = await _productService.GetByIdAsync(arg.ProductId);
+            
+            var stockReserved = new StockReserved
+            {
+                OrderId = arg.OrderId,
+                ProductId = product.Id,
+                Quantity = arg.Quantity,
+                ProductName = product.Name,
+                Price = product.Price
+            };
+            await _messagingClient.PublishAsync(stockReserved, StockEvent.StockReserved);
         }
         catch (Exception ex)
         {
@@ -150,18 +153,6 @@ public class MessageHandler : IMessageHandler
                 Reason = ex.Message
             };
             await _messagingClient.PublishAsync(stockReserveFailed, StockEvent.StockReserveFailed);
-        }
-        finally
-        {
-            var stockReserved = new StockReserved
-            {
-                OrderId = arg.OrderId,
-                ProductId = product.Id,
-                Quantity = arg.Quantity,
-                ProductName = product.Name,
-                Price = product.Price
-            };
-            await _messagingClient.PublishAsync(stockReserved, StockEvent.StockReserved);
         }
     }
 

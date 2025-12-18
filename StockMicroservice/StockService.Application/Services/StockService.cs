@@ -53,6 +53,11 @@ public class StockService
     {
         await _stockRepository.SellStock(arg.ProductsAndQuantities);
     }
+    
+    public async Task CancelStock(CancelStockEvent cancelStockEvent)
+    {
+        await _stockRepository.CancelStock(cancelStockEvent.ProductsAndQuantities);
+    }
 
     public async Task ReserveStockForProduct(ReserveProductEvent reserveProductEvent)
     {

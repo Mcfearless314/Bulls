@@ -4,6 +4,8 @@ using OrderService.Core.Interfaces;
 using OrderService.Infrastructure;
 using OrderService.Infrastructure.Repositories;
 using OrderService.Messaging;
+using OrderService.Messaging.MessageBackgroundService;
+using OrderService.Messaging.MessageHandler;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,6 +28,8 @@ builder.Services.AddScoped<DbInitializer>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IMessageClient, EasyNetQMessageClient>();
 builder.Services.AddScoped<OrderService.Application.Services.OrderService>();
+builder.Services.AddScoped<IMessageHandler, MessageHandler>();
+builder.Services.AddHostedService<MessageBackgroundService>();
 
 builder.Services.AddSingleton<IBus>(sp =>
 {

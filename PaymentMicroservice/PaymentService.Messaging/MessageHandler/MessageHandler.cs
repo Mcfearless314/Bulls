@@ -32,10 +32,20 @@ public class MessageHandler : IMessageHandler
     private async Task HandlePayment(PaymentRequestEvent arg)
     {
         Console.WriteLine("Processing payment request");
-        var isPaid = false;
         try
         {
-            isPaid = _paymentService.CreatePayment(arg.OrderId, arg.UserId, arg.Amount);
+            var isPaid = _paymentService.CreatePayment(arg.OrderId, arg.UserId, arg.Amount);
+
+            if (isPaid)
+            {
+                var paymentSucceeded = new PaymentSucceeded
+                {
+                    OrderId = arg.OrderId,
+                    UserId = arg.UserId,
+                    Amount = arg.Amount,
+                };
+                await _messageClient.PublishAsync(paymentSucceeded, PaymentEvent.PaymentSucceeded);
+            }
         }
         catch (Exception ex)
         {
@@ -48,19 +58,6 @@ public class MessageHandler : IMessageHandler
             };
             await _messageClient.PublishAsync(paymentFailed, PaymentEvent.PaymentFailed);
         }
-        finally
-        {
-            if (isPaid)
-            {
-                var paymentSucceeded = new PaymentSucceeded
-                {
-                    OrderId = arg.OrderId,
-                    UserId = arg.UserId,
-                    Amount = arg.Amount,
-                };
-                await _messageClient.PublishAsync(paymentSucceeded, PaymentEvent.PaymentSucceeded);
-            }
-        }
     }
 
     private async Task HandlePaymentRefund(PaymentRefundEvent arg)
@@ -69,6 +66,14 @@ public class MessageHandler : IMessageHandler
         try
         {
             await _paymentService.RefundPayment(arg.OrderId, arg.UserId);
+            
+            var paymentRefunded = new PaymentRefunded
+            {
+                OrderId = arg.OrderId,
+                UserId = arg.UserId,
+                Amount = arg.Amount
+            };
+            await _messageClient.PublishAsync(paymentRefunded, PaymentEvent.PaymentRefunded);
         }
         catch (Exception ex)
         {
@@ -80,16 +85,6 @@ public class MessageHandler : IMessageHandler
                 Reason = ex.Message
             };
             await _messageClient.PublishAsync(paymentRefundFailed, PaymentEvent.PaymentRefundFailed);
-        }
-        finally
-        {
-            var paymentRefunded = new PaymentRefunded
-            {
-                OrderId = arg.OrderId,
-                UserId = arg.UserId,
-                Amount = arg.Amount
-            };
-            await _messageClient.PublishAsync(paymentRefunded, PaymentEvent.PaymentRefunded);
         }
     }
 }

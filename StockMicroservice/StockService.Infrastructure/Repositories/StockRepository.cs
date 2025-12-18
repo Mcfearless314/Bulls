@@ -118,7 +118,27 @@ public class StockRepository : IStockRepository
 
         await _context.SaveChangesAsync();
     }
-    
+
+    public async Task CancelStock(Dictionary<int, int> productsAndQuantities)
+    {
+        foreach (var pq in productsAndQuantities)
+        {
+            var stock = await _context.Stocks
+                .FirstOrDefaultAsync(s => s.ProductId == pq.Key);
+
+            if (stock == null)
+            {
+                Console.WriteLine("Stock does not exist");
+                throw new KeyNotFoundException("Stock not found for the given ProductId");
+            }
+
+            stock.ReservedQuantity += pq.Value;
+            stock.SoldQuantity -= pq.Value;
+        }
+
+        await _context.SaveChangesAsync();
+    }
+
     public async Task ReserveStockForProduct(int productId, int quantity)
     {
         var stock = await _context.Stocks

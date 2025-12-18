@@ -21,92 +21,92 @@ public class PlaceOrderSagaBackgroundService : BackgroundService
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         await _messageClient.SubscribeAsync<OrderPlaced>(
-            "place_order_subscription",
+            "place-order-subscription",
             async msg => await _placeOrderSaga.Handle(msg),
             stoppingToken, OrderEvent.OrderPlaced
         );
         
         await _messageClient.SubscribeAsync<OrderPlacingFailed>(
-            "order_placing_failed_subscription",
+            "order-placing-failed-subscription",
             async msg => await _placeOrderSaga.Handle(msg),
             stoppingToken, OrderEvent.OrderPlacingFailed
         );
 
         await _messageClient.SubscribeAsync<StockSold>(
-            "update_stock_subscription",
+            "update-stock-subscription",
             async msg => await _placeOrderSaga.Handle(msg),
             stoppingToken, StockEvent.StockSold
         );
         
         await _messageClient.SubscribeAsync<StockSoldFailed>(
-            "update_failed_stock_subscription",
+            "update-failed-stock-subscription",
             async msg => await _placeOrderSaga.Handle(msg),
             stoppingToken, StockEvent.StockSoldFailed
         );
         
         await _messageClient.SubscribeAsync<PaymentSucceeded>(
-            "payment_succeeded_subscription",
+            "payment-succeeded-subscription",
             async msg => await _placeOrderSaga.Handle(msg),
             stoppingToken, PaymentEvent.PaymentSucceeded
         );
         
         await _messageClient.SubscribeAsync<PaymentFailed>(
-            "payment_failed_subscription",
+            "payment-failed-subscription",
             async msg => await _placeOrderSaga.Handle(msg),
             stoppingToken, PaymentEvent.PaymentFailed
         );
         
         await _messageClient.SubscribeAsync<OrderSetToPendingPayment>(
-            "order_set_to_pending_payment_subscription",
+            "order-set-to-pending-payment-subscription",
             async msg => await _placeOrderSaga.Handle(msg),
             stoppingToken, OrderEvent.OrderSetToPendingPayment
         );
         
         await _messageClient.SubscribeAsync<OrderSetToPendingPaymentFailed>(
-            "order_set_to_pending_payment_failed_subscription",
+            "order-set-to-pending-payment-failed-subscription",
             async msg => await _placeOrderSaga.Handle(msg),
             stoppingToken, OrderEvent.OrderSetToPendingPaymentFailed
         );
         
         
         await _messageClient.SubscribeAsync<OrderMarkedAsFailed>(
-            "confirm_order_marked_as_failed_subscription",
+            "confirm-order-marked-as-failed-subscription",
             async msg => await _placeOrderSaga.Handle(msg),
             stoppingToken,  OrderEvent.OrderMarkedAsFailed
         );
         
         await _messageClient.SubscribeAsync<OrderConfirmed>(
-            "confirm_order_subscription",
+            "confirm-order-subscription",
             async msg => await _placeOrderSaga.Handle(msg),
             stoppingToken, OrderEvent.OrderConfirmed
         );
         
         await _messageClient.SubscribeAsync<OrderConfirmFailed>(
-            "order_confirm_failed_subscription",
+            "order-confirm-failed-subscription",
             async msg => await _placeOrderSaga.Handle(msg),
             stoppingToken, OrderEvent.OrderConfirmFailed
         );
         
         await _messageClient.SubscribeAsync<StockCancelled>(
-            "stock_cancelled_subscription",
+            "stock-cancelled-subscription",
             async msg => await _placeOrderSaga.Handle(msg),
             stoppingToken, StockEvent.StockCancelled
         );
         
         await _messageClient.SubscribeAsync<StockCancelledFailed>(
-            "stock_cancelled_failed_subscription",
+            "stock-cancelled-failed-subscription",
             async msg => await _placeOrderSaga.Handle(msg),
             stoppingToken, StockEvent.StockCancelledFailed
         );
 
         await _messageClient.SubscribeAsync<PaymentRefunded>(
-            "payment_refunded_subscription",
+            "payment-refunded-subscription",
             async msg => await _placeOrderSaga.Handle(msg),
             stoppingToken, PaymentEvent.PaymentRefunded
         );
         
         await _messageClient.SubscribeAsync<PaymentRefundFailed>(
-            "payment_refunded_failed_subscription",
+            "payment-refunded-failed-subscription",
             async msg => await _placeOrderSaga.Handle(msg),
             stoppingToken, PaymentEvent.PaymentRefundFailed
         );
