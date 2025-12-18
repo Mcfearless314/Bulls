@@ -7,7 +7,7 @@ public class OrderSagaState
     public int UserId { get; set; }
     public ActionType Action { get; set; }
     public Dictionary<int, int> ProductsAndQuantities { get; set; }
-    public double Price { get; set; }
+    public decimal Price { get; set; }
     public int ConfirmRetryCount { get; set; } = 0;
     public int RefundRetryCount { get; set; } = 0;
     public int StockRetryCount { get; set; }

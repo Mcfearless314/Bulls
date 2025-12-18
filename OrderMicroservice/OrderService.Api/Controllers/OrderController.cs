@@ -58,17 +58,29 @@ public class OrderController : ControllerBase
     }
 
     [HttpPost("AddProductToOrder/{orderId}")]
-    public IActionResult AddProductToOrder([FromRoute] Guid orderId, [FromBody] AddProductToOrderDto request)
+    public async Task<IActionResult> AddProductToOrder([FromRoute] Guid orderId, [FromBody] AddProductToOrderDto request)
     {
-        _orderService.ReserveProductForOrder(orderId, request.ProductId, request.Quantity);
-        return Ok();
+        await _orderService.ReserveProductForOrder(orderId, request.ProductId, request.Quantity);
+        return Accepted();
     }
 
     [HttpDelete("RemoveProductFromOrder/{orderId}/{productId}/{quantity}")]
-    public IActionResult RemoveProductFromOrder([FromRoute] Guid orderId, [FromRoute] int productId,
+    public async Task<IActionResult> RemoveProductFromOrder([FromRoute] Guid orderId, [FromRoute] int productId,
         [FromRoute] int quantity)
     {
-        return Ok(_orderService.ReleaseReservationOfProduct(orderId, productId, quantity));
+        try
+        {
+            await _orderService.ReleaseReservationOfProduct(orderId, productId, quantity);
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            if(ex is KeyNotFoundException)
+                return BadRequest(ex.Message);
+            if(ex is InvalidOperationException)
+                return Conflict(ex.Message);
+            return StatusCode(500, "An error occurred while removing the product from the order.");
+        }
     }
 
     [HttpPost("CheckoutOrder/{orderId}")]

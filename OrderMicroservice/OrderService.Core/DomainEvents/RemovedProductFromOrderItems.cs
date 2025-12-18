@@ -1,6 +1,6 @@
 namespace OrderService.Core.DomainEvents;
 
-public class ProductRemovedFromOrderItems
+public class RemovedProductFromOrderItems
 {
     public Guid OrderId { get; set; }
     public int ProductId { get; set; }

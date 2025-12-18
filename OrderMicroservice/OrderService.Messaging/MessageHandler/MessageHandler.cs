@@ -19,19 +19,46 @@ public class MessageHandler : IMessageHandler
 
     public async Task Subscribe(CancellationToken cancellationToken)
     {
-       
-        await _messageClient.SubscribeAsync<PlaceOrderFailedEvent>("place-order-failed", PlaceOrderFailed, 
+        await _messageClient.SubscribeAsync<AddOrderItemToOrder>("add-order-item-to-order", AddOrderItemToOrder,
+            cancellationToken, OrderEvent.AddOrderItemToOrderEvent);
+
+        await _messageClient.SubscribeAsync<AddingOrderItemToOrderFailedEvent>("add-order-item-to-order-failed",
+            AddOrderItemToOrderFailed, cancellationToken, OrderEvent.AddOrderItemToOrderFailedEvent);
+
+        await _messageClient.SubscribeAsync<PlaceOrderFailedEvent>("place-order-failed", PlaceOrderFailed,
             cancellationToken, OrderEvent.PlaceOrderFailedEvent);
-        
-        await _messageClient.SubscribeAsync<ConfirmOrderEvent>("confirm-order", ConfirmOrder, 
+
+        await _messageClient.SubscribeAsync<ConfirmOrderEvent>("confirm-order", ConfirmOrder,
             cancellationToken, OrderEvent.ConfirmOrderEvent);
         
         await _messageClient.SubscribeAsync<SetOrderToPendingPaymentEvent>("set-order-to-pending-payment", SetOrderToPendingPayment, 
             cancellationToken, OrderEvent.SetOrderToPendingPaymentEvent);
     }
 
+    #region AddOrderItemToOrder
+
+    private Task AddOrderItemToOrder(AddOrderItemToOrder arg)
+    {
+        Console.WriteLine("AddOrderItemToOrder triggered");
+        return _orderService.AddItemToOrderTask(arg.OrderId, arg.ProductId, arg.ProductName, arg.Price, arg.Quantity);
+    }
+
+    #endregion
+
+    #region AddOrderItemToOrderFailed
+
+    private Task AddOrderItemToOrderFailed(AddingOrderItemToOrderFailedEvent arg)
+    {
+        Console.WriteLine("AddOrderItemToOrderFailed triggered");
+        Console.WriteLine($"Could not add item to order. OrderId: " + arg.OrderId + ", ProductId: " + arg.ProductId +
+                          ", Reason: " + arg.Reason);
+        return Task.CompletedTask;
+    }
+
+    #endregion
+
     #region PlaceOrderFailed
-    
+
     private async Task PlaceOrderFailed(PlaceOrderFailedEvent arg)
     {
         Console.WriteLine("PlaceOrderFailed triggered");
@@ -61,9 +88,9 @@ public class MessageHandler : IMessageHandler
     }
 
     #endregion
-    
+
     #region ConfirmOrder
-    
+
     private async Task ConfirmOrder(ConfirmOrderEvent arg)
     {
         Console.WriteLine("ConfirmOrder triggered");
@@ -87,11 +114,11 @@ public class MessageHandler : IMessageHandler
             await _messageClient.PublishAsync(confirmOrderFailed, OrderEvent.OrderConfirmFailed);
         }
     }
-    
-    #endregion 
-    
+
+    #endregion
+
     #region SetOrderToPendingPayment
-    
+
     private async Task SetOrderToPendingPayment(SetOrderToPendingPaymentEvent arg)
     {
         Console.WriteLine("SetOrderToPendingPayment triggered");
@@ -116,7 +143,6 @@ public class MessageHandler : IMessageHandler
             await _messageClient.PublishAsync(confirmOrderFailed, OrderEvent.OrderSetToPendingPaymentFailed);
         }
     }
-    
+
     #endregion
-    
 }

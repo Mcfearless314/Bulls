@@ -37,7 +37,7 @@
       apigateway:
         condition: service_started
       authentication-db:
-        condition: service_started
+        condition: service_healthy
     networks:
       - microservices
   
@@ -50,7 +50,13 @@
       - authentication-data:/var/opt/mssql
     networks:
       - microservices
-      
+    healthcheck:
+      test: [ "CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P SuperSecret7! -Q \"SELECT 1\" > /dev/null || exit 1" ]
+      interval: 5s
+      timeout: 2s
+      retries: 5
+      start_period: 2s
+        
   stock-service:
     image: stockservice
     build:

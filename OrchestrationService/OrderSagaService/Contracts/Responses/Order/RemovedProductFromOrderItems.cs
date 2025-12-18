@@ -1,6 +1,6 @@
 namespace OrderSagaService.Contracts.Responses.Order;
 
-public class ProductRemovedFromOrderItems
+public class RemovedProductFromOrderItems
 {
     public Guid OrderId { get; set; }
     public int ProductId { get; set; }

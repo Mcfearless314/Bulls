@@ -1,6 +1,6 @@
 using EasyNetQ;
-using OrderSaga.Messaging;
 using OrderSagaService.Interfaces;
+using OrderSagaService.Messaging;
 using OrderSagaService.Sagas;
 using OrderSagaService.Workers;
 
@@ -15,7 +15,7 @@ builder.Services.AddSingleton<IBus>(sp =>
     {
         try
         {
-            var bus = RabbitHutch.CreateBus($"host=rmq;virtualHost=/;username={rmqUsername};password={rmqPassword}");
+            var bus = RabbitHutch.CreateBus($"host=rmq;virtualHost=/;username=guest;password=guest");
             Console.WriteLine($"EasyNetQ connected to rabbitmq on attempt {i+1}");
             return bus;
         }
@@ -29,7 +29,14 @@ builder.Services.AddSingleton<IBus>(sp =>
     throw new Exception("Could not connect to RabbitMQ after multiple attempts.");
 });
 builder.Services.AddScoped<IMessageClient, EasyNetQMessageClient>();
+
 builder.Services.AddScoped<PlaceOrderSaga>();
+builder.Services.AddScoped<AddOrderItemToOrderSaga>();
+builder.Services.AddScoped<RemovalOfOrderItemFromOrderSaga>();
+
 builder.Services.AddHostedService<PlaceOrderSagaBackgroundService>();
+builder.Services.AddHostedService<AddOrderItemToOrderSagaBackgroundService>();
+builder.Services.AddHostedService<RemovalOfOrderItemFromOrderSagaBackgroundService>();
+
 var host = builder.Build();
 host.Run();

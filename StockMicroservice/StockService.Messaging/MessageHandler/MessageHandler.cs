@@ -26,13 +26,13 @@ public class MessageHandler : IMessageHandler
         await _messagingClient.SubscribeAsync<FreeProductReservationEvent>(StockEvent.FreeProductReservationEvent,
             FreeProductReservation, cancellationToken, StockEvent.FreeProductReservationEvent);
 
-        await _messagingClient.SubscribeAsync<CancelStockEvent>(StockEvent.CancelStockEvent, 
+        await _messagingClient.SubscribeAsync<CancelStockEvent>(StockEvent.CancelStockEvent,
             ReleaseStock, cancellationToken, StockEvent.CancelStockEvent);
 
         await _messagingClient.SubscribeAsync<ReserveProductEvent>(StockEvent.ReserveProductEvent, ReserveProduct,
             cancellationToken, StockEvent.ReserveProductEvent);
 
-        await _messagingClient.SubscribeAsync<SellStockEvent>(StockEvent.SellStockEvent, 
+        await _messagingClient.SubscribeAsync<SellStockEvent>(StockEvent.SellStockEvent,
             SellStock, cancellationToken, StockEvent.SellStockEvent);
     }
 
@@ -127,10 +127,11 @@ public class MessageHandler : IMessageHandler
 
     private async Task ReserveProduct(ReserveProductEvent arg)
     {
+        Product product;
         try
         {
             await _stockService.ReserveStockForProduct(arg);
-            var product = await _productService.GetByIdAsync(arg.ProductId);
+            product = await _productService.GetByIdAsync(arg.ProductId);
             
             var stockReserved = new StockReserved
             {
@@ -144,7 +145,7 @@ public class MessageHandler : IMessageHandler
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error handling FreeProductReservationEvent: {ex.Message}");
+            Console.WriteLine($"Error handling ReserveProductEvent: {ex.Message}");
             var stockReserveFailed = new StockReserveFailed
             {
                 OrderId = arg.OrderId,

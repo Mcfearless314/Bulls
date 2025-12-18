@@ -35,7 +35,7 @@ public class OrderRepository : IOrderRepository
 
         return order;
     }
-    
+
     public async Task<Order?> GetActiveOrderByUserId(int i)
     {
         var order = await _context.Orders
@@ -68,34 +68,71 @@ public class OrderRepository : IOrderRepository
         return deletedOrder;
     }
 
-    public async Task AddItemToOrder(Guid orderId, int productId, string productName, double price, int quantity)
+    public async Task AddItemToOrder(Guid orderId, int productId, string productName, decimal price, int quantity)
     {
-        var order = await GetByIdAsync(orderId);
-
-        order.Items.Add(new OrderItem
+        Order order;
+        try
         {
-            OrderId = orderId,
-            ProductId = productId,
-            ProductName = productName,
-            Price = price,
-            Quantity = quantity
-        });
+            order = await GetByIdAsync(orderId);
+        }
+        catch (Exception)
+        {
+            Console.WriteLine("Order does not exist");
+            return;
+        }
+
+        if (order.Items.Any(oi => oi.ProductId == productId))
+        {
+            order.Items.Find(oi => oi.ProductId == productId).Quantity += quantity;
+        }
+        else
+        {
+            order.Items.Add(new OrderItem
+            {
+                OrderId = orderId,
+                ProductId = productId,
+                ProductName = productName,
+                Price = price,
+                Quantity = quantity
+            });
+        }
+
+        await _context.SaveChangesAsync();
     }
 
     public async Task DeleteOrderItemFromOrder(Guid orderId, int productId, int quantity)
     {
-        var order = await GetByIdAsync(orderId);
+        Order order;
+        try
+        {
+            order = await GetByIdAsync(orderId);
+        }
+        catch (Exception)
+        {
+            Console.WriteLine("Order does not exist");
+            throw new KeyNotFoundException("Order not found for the given OrderId");
+        }
+
         var orderItem = order.Items.FirstOrDefault(oi => oi.ProductId == productId);
 
         if (orderItem != null)
         {
-            orderItem.Quantity -= quantity;
-            if (orderItem.Quantity <= 0)
+            if (orderItem.Quantity < quantity)
+            {
+                throw new InvalidOperationException("Cannot remove more items than are present in the order.");
+            }
+
+            if (orderItem.Quantity == quantity)
             {
                 order.Items.Remove(orderItem);
             }
+            else
+            {
+                orderItem.Quantity -= quantity;
+            }
         }
+        else throw new KeyNotFoundException("OrderItem not found for the given OrderId");
+
+        await _context.SaveChangesAsync();
     }
-
-
 }
