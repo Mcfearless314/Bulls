@@ -1,4 +1,6 @@
-﻿namespace AuthenticationService.Core.Interfaces;
+﻿using AuthenticationService.Core.Entities;
+
+namespace AuthenticationService.Core.Interfaces;
 
 public interface IUserRepository
 {

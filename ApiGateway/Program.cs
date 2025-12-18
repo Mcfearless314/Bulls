@@ -3,6 +3,8 @@ using Microsoft.IdentityModel.Tokens;
 using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
 using AuthenticationService;
+using AuthenticationService.Application.Services;
+using AuthenticationService.Core.Entities;
 
 var builder = WebApplication.CreateBuilder(args);
 

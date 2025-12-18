@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace AuthenticationService.DTOs;
+namespace AuthenticationService.Api.DTOs;
 
 public class CredentialsDto
 {

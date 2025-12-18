@@ -1,7 +1,9 @@
-using AuthenticationService.DTOs;
+using AuthenticationService.Api.DTOs;
+using AuthenticationService.Application.Services;
+using AuthenticationService.Core.Entities;
 using Microsoft.AspNetCore.Mvc;
 
-namespace AuthenticationService.Controllers;
+namespace AuthenticationService.Api.Controllers;
 
 [ApiController]
 [Route("[controller]")]

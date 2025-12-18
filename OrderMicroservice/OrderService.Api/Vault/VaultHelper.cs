@@ -1,12 +1,11 @@
-using AuthenticationService.Core.Entities;
 using Newtonsoft.Json.Linq;
 using Vault;
 using Vault.Client;
 using Vault.Model;
 
-namespace AuthenticationService.Application.Services;
+namespace OrderService.Vault;
 
-public static class VaultHelper
+public class VaultHelper
 {
     public static SecretSettings? FetchSecretsFromVault(
         string vaultHostName,

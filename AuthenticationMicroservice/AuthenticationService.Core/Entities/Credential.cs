@@ -1,4 +1,4 @@
-﻿namespace AuthenticationService;
+﻿namespace AuthenticationService.Core.Entities;
 
 public class Credential
 {

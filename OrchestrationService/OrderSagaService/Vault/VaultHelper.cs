@@ -1,12 +1,11 @@
-using AuthenticationService.Core.Entities;
 using Newtonsoft.Json.Linq;
 using Vault;
 using Vault.Client;
 using Vault.Model;
 
-namespace AuthenticationService.Application.Services;
+namespace OrderSagaService.Vault;
 
-public static class VaultHelper
+public class VaultHelper
 {
     public static SecretSettings? FetchSecretsFromVault(
         string vaultHostName,
@@ -18,16 +17,16 @@ public static class VaultHelper
         Console.WriteLine("Fetching secrets from Vault...");
         var config = new VaultConfiguration(vaultHostName);
         var vaultClient = new VaultClient(config);
-        
+
         Console.WriteLine("Authenticating to Vault...");
         var authResponse = vaultClient.Auth.UserpassLogin(username, new UserpassLoginRequest(password));
         vaultClient.SetToken(authResponse.ResponseAuth.ClientToken);
 
         Console.WriteLine("Reading secret from Vault...");
         VaultResponse<KvV2ReadResponse> response = vaultClient.Secrets.KvV2Read(vaultPath, vaultKvV2MountPath);
-        
+
         JObject data = (JObject)response.Data.Data;
-        
+
         return data.ToObject<SecretSettings>();
     }
 }

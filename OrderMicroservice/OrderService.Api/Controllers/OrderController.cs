@@ -29,25 +29,6 @@ public class OrderController : ControllerBase
         var orderStatus = await _orderService.GetOrderStatus(orderId);
         return Ok(orderStatus);
     }
-
-
-    [HttpPost("CreateOrder")]
-    public async Task<IActionResult> CreateOrder()
-    {
-        var order = await _orderService.GetActiveOrderByUserId(1); //TODO skal ændres til den rigtige bruger
-        if (order != null) return Ok(order);
-
-        order = new Order
-        {
-            Id = Guid.NewGuid(),
-            UserId = 1, //TODO skal ændres til den rigtige bruger
-            Status = 0,
-            CreatedAt = DateTime.Now,
-            Items = new List<OrderItem>()
-        };
-
-        return Ok(order);
-    }
     
 
     [HttpGet("GetActiveOrderByUserId")]
@@ -81,17 +62,5 @@ public class OrderController : ControllerBase
                 return Conflict(ex.Message);
             return StatusCode(500, "An error occurred while removing the product from the order.");
         }
-    }
-
-    [HttpPost("CheckoutOrder/{orderId}")]
-    public IActionResult CheckoutOrder([FromRoute] Guid orderId)
-    {
-        return Ok(_orderService.CheckoutOrder(orderId));
-    }
-
-    [HttpDelete("CancelOrder/{orderId}")]
-    public IActionResult CancelOrder([FromRoute] Guid orderId)
-    {
-        return Ok(_orderService.CancelOrder(orderId));
     }
 }

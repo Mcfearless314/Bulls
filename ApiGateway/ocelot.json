@@ -29,11 +29,31 @@
       ]
     },
     {
-      "UpstreamPathTemplate": "/api/order",
+      "UpstreamPathTemplate": "/api/order/place-order/{orderId}",
       "UpstreamHttpMethod": [
-        "Post"
+        "Get"
       ],
-      "DownstreamPathTemplate": "/api/order/createorder",
+      "DownstreamPathTemplate": "/api/order/place-order/{orderId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "order-service",
+          "Port": 8080
+        }
+      ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": [
+          "bulls_management_service"
+        ]
+      }
+    },
+    {
+      "UpstreamPathTemplate": "/api/order/get-order-status/{orderId}",
+      "UpstreamHttpMethod": [
+        "Get"
+      ],
+      "DownstreamPathTemplate": "/api/order/get-order-status/{orderId}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
@@ -94,46 +114,6 @@
         "Delete"
       ],
       "DownstreamPathTemplate": "/api/order/removeproductfromorder/{orderId}/{productId}/{quantity}",
-      "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [
-        {
-          "Host": "order-service",
-          "Port": 8080
-        }
-      ],
-      "AuthenticationOptions": {
-        "AuthenticationProviderKey": "Bearer",
-        "AllowedScopes": [
-          "bulls_management_service"
-        ]
-      }
-    },
-    {
-      "UpstreamPathTemplate": "/api/order/checkoutorder/{orderId}",
-      "UpstreamHttpMethod": [
-        "Post"
-      ],
-      "DownstreamPathTemplate": "/api/order/checkoutorder/{orderId}",
-      "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [
-        {
-          "Host": "order-service",
-          "Port": 8080
-        }
-      ],
-      "AuthenticationOptions": {
-        "AuthenticationProviderKey": "Bearer",
-        "AllowedScopes": [
-          "bulls_management_service"
-        ]
-      }
-    },
-    {
-      "UpstreamPathTemplate": "/api/order/cancelorder/{orderId}",
-      "UpstreamHttpMethod": [
-        "Delete"
-      ],
-      "DownstreamPathTemplate": "/api/order/cancelorder/{orderId}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {

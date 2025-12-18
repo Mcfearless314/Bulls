@@ -105,16 +105,6 @@ public class OrderService
         await _orderRepository.AddItemToOrder(orderId, productId, productName, price, quantity);
     }
 
-    public object? CheckoutOrder(Guid orderId)
-    {
-        throw new NotImplementedException();
-    }
-
-    public object? CancelOrder(Guid orderId)
-    {
-        throw new NotImplementedException();
-    }
-
     public async Task PlaceOrder(Guid orderId)
     {
         try

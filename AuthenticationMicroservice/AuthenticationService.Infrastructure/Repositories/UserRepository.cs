@@ -1,4 +1,5 @@
-﻿using AuthenticationService.Core.Interfaces;
+﻿using AuthenticationService.Core.Entities;
+using AuthenticationService.Core.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace AuthenticationService.Infrastructure.Repositories;
