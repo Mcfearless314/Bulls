@@ -1,6 +1,7 @@
 ﻿using OrderService.Core.DomainEvents;
 using OrderService.Core.Entities;
 using OrderService.Core.Enums;
+using OrderService.Core.Exchanges;
 using OrderService.Core.Interfaces;
 
 namespace OrderService.Application.Services;
