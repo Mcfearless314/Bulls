@@ -3,6 +3,7 @@ using StockService.Application.Services;
 using StockService.Core.Contracts;
 using StockService.Core.DomainEvents;
 using StockService.Core.Entities;
+using StockService.Core.Exchanges;
 
 namespace StockService.Messaging.MessageHandler;
 
@@ -22,13 +23,17 @@ public class MessageHandler : IMessageHandler
 
     public async Task Subscribe(CancellationToken cancellationToken)
     {
-        await _messagingClient.SubscribeAsync<FreeProductReservationEvent>("free-product-reservation",
-            FreeProductReservation, cancellationToken);
+        await _messagingClient.SubscribeAsync<FreeProductReservationEvent>(StockEvent.FreeProductReservationEvent,
+            FreeProductReservation, cancellationToken, StockEvent.FreeProductReservationEvent);
 
-        await _messagingClient.SubscribeAsync<UpdateStockEvent>("update-stock", UpdateStock, cancellationToken);
+        await _messagingClient.SubscribeAsync<CancelStockEvent>(StockEvent.CancelStockEvent, 
+            ReleaseStock, cancellationToken, StockEvent.CancelStockEvent);
 
-        await _messagingClient.SubscribeAsync<ReserveProductEvent>("reserve-product", ReserveProduct,
-            cancellationToken);
+        await _messagingClient.SubscribeAsync<ReserveProductEvent>(StockEvent.ReserveProductEvent, ReserveProduct,
+            cancellationToken, StockEvent.ReserveProductEvent);
+
+        await _messagingClient.SubscribeAsync<SellStockEvent>(StockEvent.SellStockEvent, 
+            SellStock, cancellationToken, StockEvent.SellStockEvent);
     }
 
 
@@ -48,7 +53,7 @@ public class MessageHandler : IMessageHandler
                 OrderId = arg.OrderId,
                 Reason = ex.Message
             };
-            await _messagingClient.PublishAsync(stockReleasedFailed);
+            await _messagingClient.PublishAsync(stockReleasedFailed, StockEvent.FreeProductReservationEvent);
         }
         finally
         {
@@ -56,67 +61,69 @@ public class MessageHandler : IMessageHandler
             {
                 OrderId = arg.OrderId
             };
-            await _messagingClient.PublishAsync(stockReleased);
+            await _messagingClient.PublishAsync(stockReleased, StockEvent.StockReleased);
         }
     }
 
     #endregion
 
-    #region UpdateStock
+    #region ReleaseStock
 
-    private async Task UpdateStock(UpdateStockEvent arg)
+    private async Task ReleaseStock(CancelStockEvent arg)
     {
-        if (arg.IsCancelled)
+        Console.WriteLine("Return stock triggered");
+        try
         {
-            try
-            {
-                await _stockService.ReturnStock(arg);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error handling UpdateStockEvent: {ex.Message}");
-                var stockUpdateFailed = new StockUpdateFailed
-                {
-                    OrderId = arg.OrderId,
-                    Reason = ex.Message
-                };
-                await _messagingClient.PublishAsync(stockUpdateFailed);
-            }
-            finally
-            {
-                var stockUpdated = new StockUpdated
-                {
-                    OrderId = arg.OrderId,
-                    IsReleased = true
-                };
-                await _messagingClient.PublishAsync(stockUpdated);
-            }
+            await _stockService.ReturnStock(arg);
         }
-        else if (arg.IsSold)
+        catch (Exception ex)
         {
-            try
+            Console.WriteLine($"Error handling ReleaseStockEvent: {ex.Message}");
+            var stockCancelledFailed = new StockCancelledFailed
             {
-                await _stockService.SellStock(arg);
-            }
-            catch (Exception ex)
+                OrderId = arg.OrderId,
+                Reason = ex.Message
+            };
+            await _messagingClient.PublishAsync(stockCancelledFailed, StockEvent.StockCancelledFailed);
+        }
+        finally
+        {
+            var stockCancelled = new StockCancelled
             {
-                Console.WriteLine($"Error handling UpdateStockEvent: {ex.Message}");
-                var stockUpdateFailed = new StockUpdateFailed
-                {
-                    OrderId = arg.OrderId,
-                    Reason = ex.Message
-                };
-                await _messagingClient.PublishAsync(stockUpdateFailed);
-            }
-            finally
+                OrderId = arg.OrderId,
+            };
+            await _messagingClient.PublishAsync(stockCancelled, StockEvent.StockCancelledFailed);
+        }
+    }
+
+    #endregion
+
+    #region SellStock
+
+    private async Task SellStock(SellStockEvent arg)
+    {
+        Console.WriteLine("Sell stock triggered");
+        try
+        {
+            await _stockService.SellStock(arg);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error handling UpdateStockEvent: {ex.Message}");
+            var stockSoldFailed = new StockSoldFailed
             {
-                var stockUpdated = new StockUpdated
-                {
-                    OrderId = arg.OrderId,
-                    IsSold = true
-                };
-                await _messagingClient.PublishAsync(stockUpdated);
-            }
+                OrderId = arg.OrderId,
+                Reason = ex.Message
+            };
+            await _messagingClient.PublishAsync(stockSoldFailed, StockEvent.StockSoldFailed);
+        }
+        finally
+        {
+            var stockSold = new StockSold
+            {
+                OrderId = arg.OrderId,
+            };
+            await _messagingClient.PublishAsync(stockSold, StockEvent.StockSold);
         }
     }
 
@@ -142,7 +149,7 @@ public class MessageHandler : IMessageHandler
                 Quantity = arg.Quantity,
                 Reason = ex.Message
             };
-            await _messagingClient.PublishAsync(stockReserveFailed);
+            await _messagingClient.PublishAsync(stockReserveFailed, StockEvent.StockReserveFailed);
         }
         finally
         {
@@ -154,7 +161,7 @@ public class MessageHandler : IMessageHandler
                 ProductName = product.Name,
                 Price = product.Price
             };
-            await _messagingClient.PublishAsync(stockReserved);
+            await _messagingClient.PublishAsync(stockReserved, StockEvent.StockReserved);
         }
     }
 

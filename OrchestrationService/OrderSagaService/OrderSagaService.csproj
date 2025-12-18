@@ -1,24 +1,23 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk.Worker">
 
     <PropertyGroup>
         <TargetFramework>net8.0</TargetFramework>
-        <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <UserSecretsId>dotnet-OrderSagaService-5a4fe63b-9269-45ab-9848-afe0a87f30bc</UserSecretsId>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-        <RootNamespace>OrderSaga</RootNamespace>
     </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="EasyNetQ" Version="7.8.0" />
+        <PackageReference Include="EasyNetQ.Serialization.NewtonsoftJson" Version="7.8.0" />
+        <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.1"/>
+        <PackageReference Include="System.Text.Json" Version="9.0.9" />
+    </ItemGroup>
 
     <ItemGroup>
       <Content Include="..\..\.dockerignore">
         <Link>.dockerignore</Link>
       </Content>
     </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Contracts\Order\" />
-      <Folder Include="Contracts\Payment\" />
-      <Folder Include="Contracts\Stock\" />
-      <Folder Include="Handlers\" />
-    </ItemGroup>
-
 </Project>

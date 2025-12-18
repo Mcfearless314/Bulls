@@ -1,6 +1,7 @@
 ﻿using OrderService.Core.DomainEvents;
 using OrderService.Core.Entities;
 using OrderService.Core.Enums;
+using OrderService.Core.Exchanges;
 using OrderService.Core.Interfaces;
 
 namespace OrderService.Application.Services;
@@ -31,9 +32,9 @@ public class OrderService
         return await _orderRepository.CreateAsync(order);
     }
 
-    public void UpdateOrderStatus(Guid orderId, OrderStatus orderStatus)
+    public async Task UpdateOrderStatus(Guid orderId, OrderStatus orderStatus)
     {
-        
+        await _orderRepository.UpdateAsync(orderId, orderStatus);
     }
 
     public async Task<Order> DeleteAsync(Guid id)
@@ -41,7 +42,7 @@ public class OrderService
         return await _orderRepository.DeleteAsync(id);
     }
 
-    public async Task AddItemToOrderTask(Guid orderId, int productId, string productName, decimal price, int quantity)
+    public async Task AddItemToOrderTask(Guid orderId, int productId, string productName, double price, int quantity)
     {
         await _orderRepository.AddItemToOrder(orderId, productId, productName, price, quantity);
     }
@@ -49,28 +50,16 @@ public class OrderService
     public async Task ReleaseReservationOfProduct(Guid orderId, int productId, int quantity)
     {
        await _orderRepository.DeleteOrderItemFromOrder(orderId, productId, quantity);
-       
-       await _messageClient.PublishAsync(new ProductRemovedFromOrderItems
-       {
-           OrderId = orderId,
-           ProductId = productId,
-           Quantity = quantity
-       });
     }
 
-    public async Task<Order?> GetActiveOrderByUserId(int i)
+    public async Task<Order?> GetActiveOrderByUserId(int id)
     {
-        return await _orderRepository.GetActiveOrderByUserId(i);
+        return await _orderRepository.GetActiveOrderByUserId(id);
     }
 
     public void ReserveProductForOrder(Guid orderId, int requestProductId, int requestQuantity)
     {
         throw new NotImplementedException();
-    }
-    
-    public async Task<Order> GetActiveOrderByUserId(int id)
-    {
-        throw new  NotImplementedException();
     }
 
     public object? CheckoutOrder(Guid orderId)
@@ -81,5 +70,35 @@ public class OrderService
     public object? CancelOrder(Guid orderId)
     {
         throw new NotImplementedException();
+    }
+    
+    public async Task PlaceOrder(Guid orderId)
+    {
+        try
+        {
+            var order = await GetByIdAsync(orderId);
+            await UpdateOrderStatus(orderId, OrderStatus.PendingConfirmation);
+            var orderPlaced = new OrderPlaced
+            {
+                OrderId = order.Id,
+                UserId = order.UserId,
+                ProductsAndQuantities = order.Items
+                    .ToDictionary(
+                        item => item.ProductId,
+                        item => item.Quantity
+                    ),
+                Price = order.Items.Sum(item => item.Price * item.Quantity)
+            };
+            await _messageClient.PublishAsync(orderPlaced, OrderEvent.OrderPlaced);
+        }
+        catch (Exception ex)
+        {
+            var orderFailed = new OrderPlacingFailed
+            {
+                OrderId = orderId,
+                Reason = ex.Message
+            };
+            await _messageClient.PublishAsync(orderFailed, OrderEvent.OrderPlacingFailed);
+        }
     }
 }
