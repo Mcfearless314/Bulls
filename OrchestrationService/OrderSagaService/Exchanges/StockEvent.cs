@@ -7,6 +7,7 @@ public class StockEvent
     public const string FreeProductReservationEvent = "free_product_reservation_event";
     public const string ReserveProductEvent = "reserve_product_event";
     public const string SellStockEvent = "sell_stock_event";
+    
 
     // Domain Events
     public const string StockCancelled = "stock_cancelled";

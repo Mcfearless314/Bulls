@@ -8,6 +8,8 @@ public class OrderEvent
     public const string PlaceOrderEvent = "place_order_event";
     public const string PlaceOrderFailedEvent = "place_order_failed_event";
     public const string SetOrderToPendingPaymentEvent = "set_order_to_pending_payment_event";
+    public const string AddOrderItemToOrderEvent = "add_order_item_to_order_event";
+    public const string AddOrderItemToOrderFailedEvent = "add_order_item_to_order_failed_event";
 
     // Domain events
     public const string OrderPlaced = "order_placed";

@@ -42,14 +42,25 @@ public class OrderService
         return await _orderRepository.DeleteAsync(id);
     }
 
-    public async Task AddItemToOrderTask(Guid orderId, int productId, string productName, double price, int quantity)
-    {
-        await _orderRepository.AddItemToOrder(orderId, productId, productName, price, quantity);
-    }
 
     public async Task ReleaseReservationOfProduct(Guid orderId, int productId, int quantity)
     {
-       await _orderRepository.DeleteOrderItemFromOrder(orderId, productId, quantity);
+        var order = await GetByIdAsync(orderId);
+        if (order.Status != OrderStatus.Initialized)
+        {
+            throw new InvalidOperationException("Order is not in a valid state to place an order.");
+        }
+
+        await _orderRepository.DeleteOrderItemFromOrder(orderId, productId, quantity);
+
+        var removedProductFromOrderItems = new RemovedProductFromOrderItems
+        {
+            OrderId = order.Id,
+            ProductId = productId,
+            Quantity = quantity
+        };
+
+        await _messageClient.PublishAsync(removedProductFromOrderItems, OrderEvent.RemovedProductFromOrderItems);
     }
 
     public async Task<Order?> GetActiveOrderByUserId(int id)
@@ -57,9 +68,41 @@ public class OrderService
         return await _orderRepository.GetActiveOrderByUserId(id);
     }
 
-    public void ReserveProductForOrder(Guid orderId, int requestProductId, int requestQuantity)
+    public async Task ReserveProductForOrder(Guid orderId, int requestProductId, int requestQuantity)
     {
-        throw new NotImplementedException();
+        try
+        {
+            var order = await GetByIdAsync(orderId);
+            if (order.Status != OrderStatus.Initialized)
+            {
+                throw new InvalidOperationException("Order is not in a valid state to place an order.");
+            }
+
+            var productAddedToOrder = new ProductAddedToOrder
+            {
+                OrderId = order.Id,
+                ProductId = requestProductId,
+                Quantity = requestQuantity
+            };
+
+            await _messageClient.PublishAsync(productAddedToOrder, OrderEvent.ProductAddedToOrder);
+        }
+        catch (Exception ex)
+        {
+            var productAddedToOrderFailed = new ProductAddedToOrderFailed
+            {
+                OrderId = orderId,
+                ProductId = requestProductId,
+                Quantity = requestQuantity,
+                Reason = ex.Message
+            };
+            await _messageClient.PublishAsync(productAddedToOrderFailed, OrderEvent.OrderPlacingFailed);
+        }
+    }
+
+    public async Task AddItemToOrderTask(Guid orderId, int productId, string productName, decimal price, int quantity)
+    {
+        await _orderRepository.AddItemToOrder(orderId, productId, productName, price, quantity);
     }
 
     public object? CheckoutOrder(Guid orderId)
@@ -71,7 +114,7 @@ public class OrderService
     {
         throw new NotImplementedException();
     }
-    
+
     public async Task PlaceOrder(Guid orderId)
     {
         try

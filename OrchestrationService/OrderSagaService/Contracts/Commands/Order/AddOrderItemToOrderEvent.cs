@@ -1,6 +1,6 @@
-namespace OrderSagaService.Contracts.Commands.Stock;
+namespace OrderSagaService.Contracts.Commands.Order;
 
-public class ReserveProductEvent
+public class AddOrderItemToOrderEvent
 {
     public int ProductId { get; set; }
     public int Quantity { get; set; }
