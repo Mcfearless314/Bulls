@@ -77,6 +77,12 @@ public class OrderService
         try
         {
             var order = await GetByIdAsync(orderId);
+            if (order.Status == OrderStatus.Confirmed)
+            {
+                Console.WriteLine("Order has already been confirmed");
+                return;
+            }
+            
             await UpdateOrderStatus(orderId, OrderStatus.PendingConfirmation);
             var orderPlaced = new OrderPlaced
             {
@@ -100,5 +106,11 @@ public class OrderService
             };
             await _messageClient.PublishAsync(orderFailed, OrderEvent.OrderPlacingFailed);
         }
+    }
+
+    public async Task<string> GetOrderStatus(Guid orderId)
+    {
+        var order = await _orderRepository.GetByIdAsync(orderId);
+        return order.Status.ToString();
     }
 }

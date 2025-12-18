@@ -88,25 +88,23 @@ public class PlaceOrderSaga
     private async Task Handle(OrderPlaced evt)
     {
         Console.WriteLine($"OrderPlaced Handle method triggered for {evt.OrderId}");
-        var sagaState = new OrderSagaState
-        {
-            SagaId = Guid.NewGuid(),
-            OrderId = evt.OrderId, 
-            UserId = evt.UserId,
-            Action = ActionType.OrderPlaced,
-            ProductsAndQuantities = evt.ProductsAndQuantities,
-            Price = evt.Price,
-        };
-        
-        _sagaState[evt.OrderId] = sagaState;
 
-        var sellStockEvent = new SellStockEvent
+        var saga = _sagaState.GetOrAdd(evt.OrderId, _ =>
         {
-            OrderId =  evt.OrderId,
-            ProductsAndQuantities = evt.ProductsAndQuantities
-        };
+            Console.WriteLine($"Creating new saga for {evt.OrderId}");
+            return new OrderSagaState
+            {
+                SagaId = Guid.NewGuid(),
+                OrderId = evt.OrderId,
+                UserId = evt.UserId,
+                ProductsAndQuantities = evt.ProductsAndQuantities,
+                Price = evt.Price,
+                Action = ActionType.OrderPlaced
+            };
+        });
 
-        await _messageClient.PublishAsync(sellStockEvent, StockEvent.SellStockEvent);
+        Console.WriteLine($"OrderSagaState: OrderId={saga.OrderId}, State={saga.Action}");
+        await ResumeSaga(saga);        
     }
 
     private async Task Handle(StockSold evt)
@@ -115,6 +113,7 @@ public class PlaceOrderSaga
         if (!_sagaState.TryGetValue(evt.OrderId, out var saga))
         {
             Console.WriteLine($"Saga: Unknown delete request {evt.OrderId}");
+            return;
         }
 
         saga.Action = ActionType.StockSold;
@@ -123,7 +122,7 @@ public class PlaceOrderSaga
         {
             OrderId = evt.OrderId,
         };
-        
+        Console.WriteLine($"Publishing {nameof(setOrderToPendingPaymentEvent)} to {OrderEvent.SetOrderToPendingPaymentEvent}");
         await _messageClient.PublishAsync(setOrderToPendingPaymentEvent, OrderEvent.SetOrderToPendingPaymentEvent);
     }
     
@@ -134,6 +133,7 @@ public class PlaceOrderSaga
         if (!_sagaState.TryGetValue(evt.OrderId, out var saga))
         {
             Console.WriteLine($"Saga: Unknown delete request {evt.OrderId}");
+            return;
         }
         
         saga.Action =  ActionType.StockSoldFailed;
@@ -157,6 +157,7 @@ public class PlaceOrderSaga
         if (!_sagaState.TryGetValue(evt.OrderId, out var saga))
         {
             Console.WriteLine($"Saga: Unknown delete request {evt.OrderId}");
+            return;
         }
 
         saga.Action = ActionType.OrderPendingPayment;
@@ -178,6 +179,7 @@ public class PlaceOrderSaga
         if (!_sagaState.TryGetValue(evt.OrderId, out var saga))
         {
             Console.WriteLine($"Saga: Unknown delete request {evt.OrderId}");
+            return;
         }
         
         saga.Action = ActionType.OrderPendingPaymentFailed;
@@ -200,6 +202,7 @@ public class PlaceOrderSaga
         if (!_sagaState.TryGetValue(evt.OrderId, out var saga))
         {
             Console.WriteLine($"Saga: Unknown delete request {evt.OrderId}");
+            return;
         }
         
         saga.Action =  ActionType.PaymentSucceeded;
@@ -218,6 +221,7 @@ public class PlaceOrderSaga
         if (!_sagaState.TryGetValue(evt.OrderId, out var saga))
         {
             Console.WriteLine($"Saga: Unknown delete request {evt.OrderId}");
+            return;
         }
         
         saga.Action = ActionType.PaymentFailed;
@@ -248,6 +252,7 @@ public class PlaceOrderSaga
         if (!_sagaState.TryGetValue(evt.OrderId, out var saga))
         {
             Console.WriteLine($"Saga: Unknown delete request {evt.OrderId}");
+            return;
         }
 
         if (evt.Success)
@@ -263,6 +268,7 @@ public class PlaceOrderSaga
         if (!_sagaState.TryGetValue(evt.OrderId, out var saga))
         {
             Console.WriteLine($"Saga: Unknown delete request {evt.OrderId}");
+            return;
         }
         
         saga.Action = ActionType.OrderConfirmed;
@@ -366,6 +372,7 @@ public class PlaceOrderSaga
         if (!_sagaState.TryGetValue(evt.OrderId, out var saga))
         {
             Console.WriteLine($"Saga: Unknown delete request {evt.OrderId}");
+            return;
         }
 
         saga.Action = ActionType.PaymentRefunded;
@@ -398,6 +405,73 @@ public class PlaceOrderSaga
         {
             Console.WriteLine($"Max retries reached for refund. Manual intervention required for {evt.OrderId}");
             saga.Action = ActionType.PaymentRefundFailed;
+        }
+    }
+    
+    private async Task ResumeSaga(OrderSagaState saga)
+    {
+        Console.WriteLine($"Resuming saga {saga.OrderId} from state {saga.Action}");
+
+        switch (saga.Action)
+        {
+            case ActionType.OrderPlaced:
+            case ActionType.OrderFailed:
+            case ActionType.StockSoldFailed:
+            case ActionType.OrderPendingPaymentFailed:
+                await _messageClient.PublishAsync(
+                    new SellStockEvent
+                    {
+                        OrderId = saga.OrderId,
+                        ProductsAndQuantities = saga.ProductsAndQuantities
+                    },
+                    StockEvent.SellStockEvent
+                );
+                break;
+
+            case ActionType.OrderPendingPayment:
+            case ActionType.PaymentFailed:
+                await _messageClient.PublishAsync(
+                    new PaymentRequestEvent
+                    {
+                        OrderId = saga.OrderId,
+                        UserId = saga.UserId,
+                        Amount = saga.Price
+                    },
+                    PaymentEvent.PaymentRequestEvent
+                );
+                break;
+
+            case ActionType.PaymentSucceeded:
+            case ActionType.OrderMarkedAsConfirmedFailed:
+                await _messageClient.PublishAsync(
+                    new ConfirmOrderEvent
+                    {
+                        OrderId = saga.OrderId
+                    },
+                    OrderEvent.ConfirmOrderEvent
+                );
+                break;
+
+            case ActionType.ProcessingPaymentRefund:
+            case ActionType.PaymentRefundFailed:    
+                await _messageClient.PublishAsync(
+                    new PaymentRefundEvent
+                    {
+                        OrderId = saga.OrderId,
+                        UserId = saga.UserId,
+                        Amount = saga.Price
+                    },
+                    PaymentEvent.PaymentRefundEvent
+                );
+                break;
+
+            case ActionType.OrderConfirmed:
+                Console.WriteLine($"Saga {saga.OrderId} already completed");
+                break;
+
+            default:
+                Console.WriteLine($"Unhandled saga state {saga.Action} for {saga.OrderId}");
+                break;
         }
     }
 }
