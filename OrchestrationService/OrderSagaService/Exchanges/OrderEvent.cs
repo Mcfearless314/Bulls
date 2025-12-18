@@ -1,4 +1,4 @@
-﻿namespace OrderService.Core.Exchanges;
+﻿namespace OrderSagaService.Exchanges;
 
 public class OrderEvent
 {

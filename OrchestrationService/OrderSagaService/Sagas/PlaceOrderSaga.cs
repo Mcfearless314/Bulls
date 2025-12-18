@@ -5,6 +5,7 @@ using OrderSagaService.Contracts.Commands.Stock;
 using OrderSagaService.Contracts.Responses.Order;
 using OrderSagaService.Contracts.Responses.Payment;
 using OrderSagaService.Contracts.Responses.Stock;
+using OrderSagaService.Exchanges;
 using OrderSagaService.Interfaces;
 using OrderSagaService.State;
 
@@ -15,6 +16,7 @@ public class PlaceOrderSaga
 {
     private static ConcurrentDictionary<Guid, OrderSagaState> _sagaState = new();
     private readonly IMessageClient _messageClient;
+    private const int MaxRetries = 3;
 
     public PlaceOrderSaga(IMessageClient messageClient)
     {
@@ -41,6 +43,14 @@ public class PlaceOrderSaga
                 await Handle(e);
                 break;
             
+            case OrderSetToPendingPayment e:
+                await Handle(e);
+                break;
+            
+            case OrderSetToPendingPaymentFailed e:
+                await Handle(e);
+                break;
+            
             case PaymentFailed e:
                 await Handle(e);
                 break;
@@ -54,6 +64,14 @@ public class PlaceOrderSaga
                 break;
             
             case OrderConfirmFailed e:
+                await Handle(e);
+                break;
+
+            case StockCancelled e:
+                await Handle(e);
+                break;
+            
+            case StockCancelledFailed e:
                 await Handle(e);
                 break;
             
@@ -88,7 +106,7 @@ public class PlaceOrderSaga
             ProductsAndQuantities = evt.ProductsAndQuantities
         };
 
-        await _messageClient.PublishAsync(sellStockEvent);
+        await _messageClient.PublishAsync(sellStockEvent, StockEvent.SellStockEvent);
     }
 
     private async Task Handle(StockSold evt)
@@ -99,14 +117,14 @@ public class PlaceOrderSaga
             Console.WriteLine($"Saga: Unknown delete request {evt.OrderId}");
         }
 
-        var paymentRequestEvent = new PaymentRequestEvent
+        saga.Action = ActionType.StockSold;
+
+        var setOrderToPendingPaymentEvent = new SetOrderToPendingPaymentEvent
         {
             OrderId = evt.OrderId,
-            Amount = saga.Price,
-            UserId = saga.UserId
         };
         
-        await _messageClient.PublishAsync(paymentRequestEvent);
+        await _messageClient.PublishAsync(setOrderToPendingPaymentEvent, OrderEvent.SetOrderToPendingPaymentEvent);
     }
     
     private async Task Handle(StockSoldFailed evt)
@@ -117,6 +135,8 @@ public class PlaceOrderSaga
         {
             Console.WriteLine($"Saga: Unknown delete request {evt.OrderId}");
         }
+        
+        saga.Action =  ActionType.StockSoldFailed;
 
         var failOrderEvent = new PlaceOrderFailedEvent
         {
@@ -127,7 +147,49 @@ public class PlaceOrderSaga
         
         Console.WriteLine($"Trigger compensation for OrderService.");
         
-        await _messageClient.PublishAsync(failOrderEvent);
+        await _messageClient.PublishAsync(failOrderEvent, OrderEvent.PlaceOrderFailedEvent);
+    }
+    
+    private async Task Handle(OrderSetToPendingPayment evt)
+    {
+        Console.WriteLine($"OrderSetToPendingPayment Handle method triggered for {evt.OrderId}");
+        
+        if (!_sagaState.TryGetValue(evt.OrderId, out var saga))
+        {
+            Console.WriteLine($"Saga: Unknown delete request {evt.OrderId}");
+        }
+
+        saga.Action = ActionType.OrderPendingPayment;
+        
+        var paymentRequestEvent = new PaymentRequestEvent
+        {
+            OrderId = evt.OrderId,
+            Amount = saga.Price,
+            UserId = saga.UserId
+        };
+        
+        await _messageClient.PublishAsync(paymentRequestEvent, PaymentEvent.PaymentRequestEvent);
+    }
+    
+    private async Task Handle(OrderSetToPendingPaymentFailed evt)
+    {
+        Console.WriteLine($"OrderSetToPendingPaymentFailed Handle method triggered for {evt.OrderId}");
+        
+        if (!_sagaState.TryGetValue(evt.OrderId, out var saga))
+        {
+            Console.WriteLine($"Saga: Unknown delete request {evt.OrderId}");
+        }
+        
+        saga.Action = ActionType.OrderPendingPaymentFailed;
+        
+        var cancelStockEvent = new CancelStockEvent
+        {
+            OrderId =  evt.OrderId,
+            ProductsAndQuantities = saga.ProductsAndQuantities
+        };
+        
+        Console.WriteLine($"Trigger compensation for StockService.");
+        await _messageClient.PublishAsync(cancelStockEvent, StockEvent.CancelStockEvent);
     }
 
     
@@ -140,11 +202,13 @@ public class PlaceOrderSaga
             Console.WriteLine($"Saga: Unknown delete request {evt.OrderId}");
         }
         
+        saga.Action =  ActionType.PaymentSucceeded;
+        
         var confirmOrderEvent = new ConfirmOrderEvent
         {
             OrderId = evt.OrderId,
         };
-        await _messageClient.PublishAsync(confirmOrderEvent);
+        await _messageClient.PublishAsync(confirmOrderEvent, OrderEvent.ConfirmOrderEvent);
     }
     
     private async Task Handle(PaymentFailed evt)
@@ -155,6 +219,8 @@ public class PlaceOrderSaga
         {
             Console.WriteLine($"Saga: Unknown delete request {evt.OrderId}");
         }
+        
+        saga.Action = ActionType.PaymentFailed;
         
         var cancelStockEvent = new CancelStockEvent
         {
@@ -169,12 +235,10 @@ public class PlaceOrderSaga
             StockFail = false
         };
         
-        saga.Action = ActionType.PaymentFailed;
-        
         Console.WriteLine($"Trigger compensation for Stock- and OrderService.");
 
-        await _messageClient.PublishAsync(cancelStockEvent);
-        await _messageClient.PublishAsync(failOrderEvent);
+        await _messageClient.PublishAsync(cancelStockEvent, StockEvent.CancelStockEvent);
+        await _messageClient.PublishAsync(failOrderEvent,  OrderEvent.PlaceOrderFailedEvent);
     }
 
     private async Task Handle(OrderMarkedAsFailed evt)
@@ -189,7 +253,7 @@ public class PlaceOrderSaga
         if (evt.Success)
             saga.Action = ActionType.OrderFailed;
         else
-            saga.Action = ActionType.OrderError;
+            saga.Action = ActionType.OrderMarkedAsFailedError;
     }
 
     private async Task Handle(OrderConfirmed evt)
@@ -201,41 +265,99 @@ public class PlaceOrderSaga
             Console.WriteLine($"Saga: Unknown delete request {evt.OrderId}");
         }
         
-        saga.Action = ActionType.OrderPlaced;
+        saga.Action = ActionType.OrderConfirmed;
         Console.WriteLine($"Workflow for {saga.OrderId} has been completed");
     }
     
     private async Task Handle(OrderConfirmFailed evt)
     {
         Console.WriteLine($"OrderConfirmFailed Handle method triggered for {evt.OrderId}");
-        
+
         if (!_sagaState.TryGetValue(evt.OrderId, out var saga))
         {
             Console.WriteLine($"Saga: Unknown delete request {evt.OrderId}");
+            return;
+        }
+
+        saga.Action = ActionType.OrderMarkedAsConfirmedFailed;
+        saga.ConfirmRetryCount++;
+
+        if (saga.ConfirmRetryCount <= MaxRetries)
+        {
+            Console.WriteLine($"Retrying order confirmation ({saga.ConfirmRetryCount}/{MaxRetries}) for {evt.OrderId}");
+            var confirmOrderEvent = new ConfirmOrderEvent
+            {
+                OrderId = evt.OrderId
+            };
+            await _messageClient.PublishAsync(confirmOrderEvent, OrderEvent.ConfirmOrderEvent);
+        }
+        else
+        {
+            Console.WriteLine($"Max retries reached for order confirmation. Triggering refund for {evt.OrderId}");
+
+            var cancelStockEvent = new CancelStockEvent
+            {
+                OrderId = evt.OrderId,
+                ProductsAndQuantities = saga.ProductsAndQuantities
+            };
+
+            var paymentRefundEvent = new PaymentRefundEvent
+            {
+                OrderId = evt.OrderId,
+                UserId = saga.UserId,
+                Amount = saga.Price
+            };
+
+            await _messageClient.PublishAsync(cancelStockEvent, StockEvent.CancelStockEvent);
+            await _messageClient.PublishAsync(paymentRefundEvent, PaymentEvent.PaymentRefundEvent);
+
+            saga.Action = ActionType.ProcessingPaymentRefund;
+        }
+    }
+    
+    private async Task Handle(StockCancelled evt)
+    {
+        Console.WriteLine($"StockCancelled Handle method triggered for {evt.OrderId}");
+        if (!_sagaState.TryGetValue(evt.OrderId, out var saga))
+        {
+            Console.WriteLine($"Saga: Unknown delete request {evt.OrderId}");
+            return;
         }
 
         saga.Action = ActionType.OrderFailed;
-        
-        var cancelStockEvent = new CancelStockEvent
-        {
-            OrderId =  evt.OrderId,
-            ProductsAndQuantities = saga.ProductsAndQuantities
-        };
-
-        var paymentRefundEvent = new PaymentRefundEvent
-        {
-            OrderId = evt.OrderId,
-            UserId = saga.UserId,
-            Amount = saga.Price
-        };
-
-        Console.WriteLine($"Trigger compensation for Stock- and PaymentService.");
-        
-        await _messageClient.PublishAsync(cancelStockEvent);
-        await _messageClient.PublishAsync(paymentRefundEvent);
-        
-        Console.WriteLine($"Workflow for {saga.OrderId} has failed.");
+        Console.WriteLine($"Stock cancellation succeeded for {saga.OrderId}");
     }
+
+    private async Task Handle(StockCancelledFailed evt)
+    {
+        Console.WriteLine($"StockCancelledFailed Handle method triggered for {evt.OrderId}");
+        if (!_sagaState.TryGetValue(evt.OrderId, out var saga))
+        {
+            Console.WriteLine($"Saga: Unknown delete request {evt.OrderId}");
+            return;
+        }
+
+        saga.StockRetryCount++;
+
+        if (saga.StockRetryCount <= MaxRetries)
+        {
+            Console.WriteLine($"Retrying stock cancellation ({saga.StockRetryCount}/{MaxRetries}) for {evt.OrderId}");
+
+            var cancelStockEvent = new CancelStockEvent
+            {
+                OrderId = saga.OrderId,
+                ProductsAndQuantities = saga.ProductsAndQuantities
+            };
+
+            await _messageClient.PublishAsync(cancelStockEvent, StockEvent.CancelStockEvent);
+        }
+        else
+        {
+            Console.WriteLine($"Max retries reached for stock cancellation. Manual intervention required for {evt.OrderId}");
+            saga.Action = ActionType.StockCancelFailed;
+        }
+    }
+
     
     private async Task Handle(PaymentRefunded evt)
     {
@@ -246,18 +368,36 @@ public class PlaceOrderSaga
             Console.WriteLine($"Saga: Unknown delete request {evt.OrderId}");
         }
 
-        saga.Action = ActionType.PaymentRefundedForFailedOrder;
+        saga.Action = ActionType.PaymentRefunded;
     }
     
     private async Task Handle(PaymentRefundFailed evt)
     {
         Console.WriteLine($"PaymentRefundFailed Handle method triggered for {evt.OrderId}");
-        
+
         if (!_sagaState.TryGetValue(evt.OrderId, out var saga))
         {
             Console.WriteLine($"Saga: Unknown delete request {evt.OrderId}");
+            return;
         }
 
-        saga.Action = ActionType.RefundErrorForFailedOrder;
+        saga.RefundRetryCount++;
+
+        if (saga.RefundRetryCount <= MaxRetries)
+        {
+            Console.WriteLine($"Retrying payment refund ({saga.RefundRetryCount}/{MaxRetries}) for {evt.OrderId}");
+            var paymentRefundEvent = new PaymentRefundEvent
+            {
+                OrderId = evt.OrderId,
+                UserId = saga.UserId,
+                Amount = saga.Price
+            };
+            await _messageClient.PublishAsync(paymentRefundEvent, PaymentEvent.PaymentRefundEvent);
+        }
+        else
+        {
+            Console.WriteLine($"Max retries reached for refund. Manual intervention required for {evt.OrderId}");
+            saga.Action = ActionType.PaymentRefundFailed;
+        }
     }
 }

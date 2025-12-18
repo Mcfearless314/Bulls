@@ -62,7 +62,7 @@
       apigateway:
         condition: service_started
       rmq:
-        condition: service_started  
+        condition: service_healthy
       stock-db:
         condition: service_started
     networks:
@@ -90,7 +90,7 @@
       apigateway:
         condition: service_started
       rmq:
-        condition: service_started
+        condition: service_healthy
       order-db:
         condition: service_started
     networks:
@@ -116,7 +116,7 @@
       apigateway:
         condition: service_started
       rmq:
-        condition: service_started
+        condition: service_healthy
       payment-db:
         condition: service_started
     networks:
@@ -140,7 +140,7 @@
       dockerfile: OrchestrationService/OrderSagaService/Dockerfile
     depends_on:
       rmq:
-        condition: service_started
+        condition: service_healthy
       order-service:
         condition: service_started
       stock-service:

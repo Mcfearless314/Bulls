@@ -50,13 +50,6 @@ public class OrderService
     public async Task ReleaseReservationOfProduct(Guid orderId, int productId, int quantity)
     {
        await _orderRepository.DeleteOrderItemFromOrder(orderId, productId, quantity);
-       
-       await _messageClient.PublishAsync(new ProductRemovedFromOrderItems
-       {
-           OrderId = orderId,
-           ProductId = productId,
-           Quantity = quantity
-       });
     }
 
     public async Task<Order?> GetActiveOrderByUserId(int id)
@@ -96,7 +89,7 @@ public class OrderService
                     ),
                 Price = order.Items.Sum(item => item.Price * item.Quantity)
             };
-            await _messageClient.PublishTestAsync(orderPlaced, OrderEvent.OrderPlaced);
+            await _messageClient.PublishAsync(orderPlaced, OrderEvent.OrderPlaced);
         }
         catch (Exception ex)
         {
@@ -105,7 +98,7 @@ public class OrderService
                 OrderId = orderId,
                 Reason = ex.Message
             };
-            await _messageClient.PublishAsync(orderFailed);
+            await _messageClient.PublishAsync(orderFailed, OrderEvent.OrderPlacingFailed);
         }
     }
 }

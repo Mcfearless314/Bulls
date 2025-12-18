@@ -1,5 +1,6 @@
 using PaymentService.Core.Contracts;
 using PaymentService.Core.DomainEvents;
+using PaymentService.Core.Exchanges;
 using PaymentService.Core.Interfaces;
 
 namespace PaymentService.Messaging.MessageHandler;
@@ -20,12 +21,12 @@ public class MessageHandler : IMessageHandler
         await _messageClient.SubscribeAsync<PaymentRequestEvent>(
             "payment-service-subscription",
             HandlePayment,
-            cancellationToken);
+            cancellationToken, PaymentEvent.PaymentRequestEvent);
 
         await _messageClient.SubscribeAsync<PaymentRefundEvent>(
             "payment-refund-subscription",
             HandlePaymentRefund,
-            cancellationToken);
+            cancellationToken, PaymentEvent.PaymentRefundEvent);
     }
 
     private async Task HandlePayment(PaymentRequestEvent arg)
@@ -45,7 +46,7 @@ public class MessageHandler : IMessageHandler
                 Amount = arg.Amount,
                 Reason = ex.Message
             };
-            await _messageClient.PublishAsync(paymentFailed);
+            await _messageClient.PublishAsync(paymentFailed, PaymentEvent.PaymentFailed);
         }
         finally
         {
@@ -57,7 +58,7 @@ public class MessageHandler : IMessageHandler
                     UserId = arg.UserId,
                     Amount = arg.Amount,
                 };
-                await _messageClient.PublishAsync(paymentSucceeded);
+                await _messageClient.PublishAsync(paymentSucceeded, PaymentEvent.PaymentSucceeded);
             }
         }
     }
@@ -78,7 +79,7 @@ public class MessageHandler : IMessageHandler
                 Amount = arg.Amount,
                 Reason = ex.Message
             };
-            await _messageClient.PublishAsync(paymentRefundFailed);
+            await _messageClient.PublishAsync(paymentRefundFailed, PaymentEvent.PaymentRefundFailed);
         }
         finally
         {
@@ -88,7 +89,7 @@ public class MessageHandler : IMessageHandler
                 UserId = arg.UserId,
                 Amount = arg.Amount
             };
-            await _messageClient.PublishAsync(paymentRefunded);
+            await _messageClient.PublishAsync(paymentRefunded, PaymentEvent.PaymentRefunded);
         }
     }
 }

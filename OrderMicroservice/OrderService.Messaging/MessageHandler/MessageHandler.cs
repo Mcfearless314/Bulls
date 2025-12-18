@@ -2,6 +2,7 @@ using OrderService.Core.Interfaces;
 using OrderService.Core.Contracts;
 using OrderService.Core.DomainEvents;
 using OrderService.Core.Enums;
+using OrderService.Core.Exchanges;
 
 namespace OrderService.Messaging.MessageHandler;
 
@@ -19,9 +20,14 @@ public class MessageHandler : IMessageHandler
     public async Task Subscribe(CancellationToken cancellationToken)
     {
        
-        await _messageClient.SubscribeAsync<PlaceOrderFailedEvent>("place-order-failed", PlaceOrderFailed, cancellationToken);
+        await _messageClient.SubscribeAsync<PlaceOrderFailedEvent>("place-order-failed", PlaceOrderFailed, 
+            cancellationToken, OrderEvent.PlaceOrderEvent);
         
-        await _messageClient.SubscribeAsync<ConfirmOrderEvent>("place-order-failed", ConfirmOrder, cancellationToken);
+        await _messageClient.SubscribeAsync<ConfirmOrderEvent>("place-order-failed", ConfirmOrder, 
+            cancellationToken, OrderEvent.ConfirmOrderEvent);
+        
+        await _messageClient.SubscribeAsync<SetOrderToPendingPaymentEvent>("set-order-to-pending_payment", SetOrderToPendingPayment, 
+            cancellationToken, OrderEvent.SetOrderToPendingPaymentEvent);
     }
 
     #region PlaceOrderFailed
@@ -43,7 +49,7 @@ public class MessageHandler : IMessageHandler
                 OrderId = arg.OrderId,
                 Success = false
             };
-            await _messageClient.PublishAsync(orderMarkedAsFailed);
+            await _messageClient.PublishAsync(orderMarkedAsFailed, OrderEvent.OrderMarkedAsFailed);
         }
         finally
         {
@@ -52,7 +58,7 @@ public class MessageHandler : IMessageHandler
                 OrderId = arg.OrderId,
                 Success = true
             };
-            await _messageClient.PublishAsync(orderMarkedAsFailed);
+            await _messageClient.PublishAsync(orderMarkedAsFailed, OrderEvent.OrderMarkedAsFailed);
         }
 
     }
@@ -75,7 +81,7 @@ public class MessageHandler : IMessageHandler
                 OrderId = arg.OrderId,
                 Reason = ex.Message,
             };
-            await _messageClient.PublishAsync(confirmOrderFailed);
+            await _messageClient.PublishAsync(confirmOrderFailed, OrderEvent.OrderConfirmFailed);
         }
         finally
         {
@@ -83,10 +89,40 @@ public class MessageHandler : IMessageHandler
             {
                 OrderId = arg.OrderId
             };
-            await _messageClient.PublishAsync(orderConfirmed);
+            await _messageClient.PublishAsync(orderConfirmed, OrderEvent.OrderConfirmed);
         }
     }
     
     #endregion 
+    
+    #region SetOrderToPendingPayment
+    
+    private async Task SetOrderToPendingPayment(SetOrderToPendingPaymentEvent arg)
+    {
+        Console.WriteLine("SetOrderToPendingPayment triggered");
+        try
+        {
+            await _orderService.UpdateOrderStatus(arg.OrderId, OrderStatus.PendingPayment);
+        }
+        catch (Exception ex)
+        {
+            var confirmOrderFailed = new OrderSetToPendingPaymentFailed
+            {
+                OrderId = arg.OrderId,
+                Reason = ex.Message,
+            };
+            await _messageClient.PublishAsync(confirmOrderFailed, OrderEvent.OrderSetToPendingPaymentFailed);
+        }
+        finally
+        {
+            var orderConfirmed = new OrderSetToPendingPayment
+            {
+                OrderId = arg.OrderId
+            };
+            await _messageClient.PublishAsync(orderConfirmed, OrderEvent.OrderSetToPendingPayment);
+        }
+    }
+    
+    #endregion
     
 }

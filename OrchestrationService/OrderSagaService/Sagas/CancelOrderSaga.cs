@@ -26,11 +26,6 @@ public class CancelOrderSaga
     
     private async Task Handle(OrderCancelled evt)
     {
-        var saga = new OrderSagaState
-        {
-            SagaId = Guid.NewGuid(),
-            OrderId = evt.OrderId, 
-            Action = ActionType.OrderCancelled
-        };
+        
     }
 }

@@ -1,11 +1,10 @@
 ﻿using System.Text;
 using EasyNetQ;
 using EasyNetQ.Topology;
-using System.Text.Json;
 using OrderSagaService.Interfaces;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
-namespace OrderSaga.Messaging;
+namespace OrderSagaService.Messaging;
 
 public class EasyNetQMessageClient : IMessageClient
 {
@@ -16,43 +15,44 @@ public class EasyNetQMessageClient : IMessageClient
         _bus = bus;
     }
 
-    public async Task PublishAsync<T>(T @event) where T : class
+    public async Task PublishAsync<T>(T @event, string exchangeName) where T : class
     {
         Console.WriteLine($"Publishing event: {typeof(T).Name} - {JsonSerializer.Serialize(@event)}");
-        await _bus.PubSub.PublishAsync(@event);
-    }
-    
-    public Task SubscribeTestAsync<T>(
-        string subscriptionId,
-        Func<T, Task> handler,
-        CancellationToken cancellationToken,
-        string exchangeName
-    ) where T : class
-    {
-        var exchange = _bus.Advanced.ExchangeDeclare(
+
+        var exchange = await _bus.Advanced.ExchangeDeclareAsync(
             exchangeName,
-            ExchangeType.Fanout
+            ExchangeType.Fanout,
+            durable: true
         );
 
-        var queue = _bus.Advanced.QueueDeclare(subscriptionId);
+        var json = JsonSerializer.Serialize(@event);
+        var body = Encoding.UTF8.GetBytes(json);
+        var msg = new Message<byte[]>(body);
 
-        _bus.Advanced.Bind(exchange, queue, "");
+        await _bus.Advanced.PublishAsync(
+            exchange,
+            routingKey: "",
+            mandatory: false,
+            message: msg
+        );
+    }
+    
 
-        _bus.Advanced.Consume<byte[]>(queue, async (msg, _) =>
+    public async Task SubscribeAsync<T>( string subscriptionId, Func<T, Task> handler, CancellationToken cancellationToken, string exchangeName) where T : class
+    {
+        var exchange = await _bus.Advanced.ExchangeDeclareAsync(
+            exchangeName,
+            ExchangeType.Fanout, cancellationToken: cancellationToken);
+
+        var queue = await _bus.Advanced.QueueDeclareAsync(subscriptionId, cancellationToken: cancellationToken);
+
+        await _bus.Advanced.BindAsync(exchange, queue, "", cancellationToken: cancellationToken);
+
+        _bus.Advanced.Consume<byte[]>(queue, async (msg, info) =>
         {
             var json = Encoding.UTF8.GetString(msg.Body);
             var data = JsonSerializer.Deserialize<T>(json)!;
             await handler(data);
         });
-
-        return Task.CompletedTask;
-    }
-
-
-
-    public async Task SubscribeAsync<T>(string subscriptionId, Func<T, Task> onMessage, CancellationToken cancellationToken) where T : class
-    {
-        Console.WriteLine($"Subscribing to event: {typeof(T).Name} with subscription ID: {subscriptionId}");
-        await _bus.PubSub.SubscribeAsync(subscriptionId, onMessage, cancellationToken);
     }
 }
