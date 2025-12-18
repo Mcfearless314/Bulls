@@ -16,22 +16,21 @@ public class DbInitializer
         await context.Database.EnsureDeletedAsync();
         await context.Database.EnsureCreatedAsync();
 
-        var users = new List<User>
+        var user = new User
         {
-            new User {Username = "John"},
-            new User {Username = "Jane"}
+            Username = "John"
         };
         
-        await context.Users.AddRangeAsync(users);
+        await context.Users.AddAsync(user);
         await context.SaveChangesAsync();
 
-        var credentials = new List<Credential>
+        var credential = new Credential
         {
-            new Credential {Id = Guid.NewGuid(), UserId = 1, Password = "john123"},
-            new Credential {Id = Guid.NewGuid(), UserId = 2, Password = "jane123"}
+            Id = Guid.NewGuid(),
+            UserId = user.Id,
+            Password = "john123"
         };
-        
-        await context.Credentials.AddRangeAsync(credentials);
+        await context.Credentials.AddRangeAsync(credential);
         await context.SaveChangesAsync();
     }
 }

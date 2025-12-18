@@ -20,19 +20,20 @@ public class JwtTokenService
     {
         var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_secretSettings.BullsToken));
         var signingCredentials = new SigningCredentials(secretKey, SecurityAlgorithms.HmacSha256);
-
+        
         var claims = new List<Claim>
         {
             new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
             new Claim(ClaimTypes.Name, user.Username),
             new Claim("scope", "bulls_management_service")
         };
-
+        
         var tokenOptions = new JwtSecurityToken(
             claims: claims,
             expires: DateTime.Now.AddHours(12),
             signingCredentials: signingCredentials
         );
+        
         
         var tokenString = new JwtSecurityTokenHandler().WriteToken(tokenOptions);
         

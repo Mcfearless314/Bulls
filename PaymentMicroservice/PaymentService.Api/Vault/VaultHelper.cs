@@ -19,6 +19,7 @@ public class VaultHelper
         var vaultClient = new VaultClient(config);
         
         Console.WriteLine("Authenticating to Vault...");
+        Console.WriteLine("username:"+username +" Password:"+ password);
         var authResponse = vaultClient.Auth.UserpassLogin(username, new UserpassLoginRequest(password));
         vaultClient.SetToken(authResponse.ResponseAuth.ClientToken);
 
