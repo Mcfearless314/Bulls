@@ -47,6 +47,286 @@
           "bulls_management_service"
         ]
       }
+    },
+    {
+      "UpstreamPathTemplate": "/api/order/getactiveorderbyuserid",
+      "UpstreamHttpMethod": [
+        "Get"
+      ],
+      "DownstreamPathTemplate": "/api/order/getactiveorderbyuserid",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "order-service",
+          "Port": 8080
+        }
+      ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": [
+          "bulls_management_service"
+        ]
+      }
+    },
+    {
+      "UpstreamPathTemplate": "/api/order/addproducttoorder/{orderId}",
+      "UpstreamHttpMethod": [
+        "Post"
+      ],
+      "DownstreamPathTemplate": "/api/order/addproducttoorder/{orderId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "order-service",
+          "Port": 8080
+        }
+      ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": [
+          "bulls_management_service"
+        ]
+      }
+    },
+    {
+      "UpstreamPathTemplate": "/api/order/removeproductfromorder/{orderId}/{productId}/{quantity}",
+      "UpstreamHttpMethod": [
+        "Delete"
+      ],
+      "DownstreamPathTemplate": "/api/order/removeproductfromorder/{orderId}/{productId}/{quantity}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "order-service",
+          "Port": 8080
+        }
+      ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": [
+          "bulls_management_service"
+        ]
+      }
+    },
+    {
+      "UpstreamPathTemplate": "/api/order/checkoutorder/{orderId}",
+      "UpstreamHttpMethod": [
+        "Post"
+      ],
+      "DownstreamPathTemplate": "/api/order/checkoutorder/{orderId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "order-service",
+          "Port": 8080
+        }
+      ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": [
+          "bulls_management_service"
+        ]
+      }
+    },
+    {
+      "UpstreamPathTemplate": "/api/order/cancelorder/{orderId}",
+      "UpstreamHttpMethod": [
+        "Delete"
+      ],
+      "DownstreamPathTemplate": "/api/order/cancelorder/{orderId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "order-service",
+          "Port": 8080
+        }
+      ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": [
+          "bulls_management_service"
+        ]
+      }
+    },
+    {
+      "UpstreamPathTemplate": "/api/product",
+      "UpstreamHttpMethod": [
+        "Get"
+      ],
+      "DownstreamPathTemplate": "/api/product",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "stock-service",
+          "Port": 8080
+        }
+      ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": [
+          "bulls_management_service"
+        ]
+      }
+    },
+    {
+      "UpstreamPathTemplate": "/api/product",
+      "UpstreamHttpMethod": [
+        "Post"
+      ],
+      "DownstreamPathTemplate": "/api/product",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "stock-service",
+          "Port": 8080
+        }
+      ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": [
+          "bulls_management_service"
+        ]
+      }
+    },
+    {
+      "UpstreamPathTemplate": "/api/product",
+      "UpstreamHttpMethod": [
+        "Put"
+      ],
+      "DownstreamPathTemplate": "/api/product",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "stock-service",
+          "Port": 8080
+        }
+      ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": [
+          "bulls_management_service"
+        ]
+      }
+    },
+    {
+      "UpstreamPathTemplate": "/api/product",
+      "UpstreamHttpMethod": [
+        "Delete"
+      ],
+      "DownstreamPathTemplate": "/api/product",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "stock-service",
+          "Port": 8080
+        }
+      ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": [
+          "bulls_management_service"
+        ]
+      }
+    },
+    {
+      "UpstreamPathTemplate": "/api/stock",
+      "UpstreamHttpMethod": [
+        "Get"
+      ],
+      "DownstreamPathTemplate": "/api/stock",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "stock-service",
+          "Port": 8080
+        }
+      ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": [
+          "bulls_management_service"
+        ]
+      }
+    },
+    {
+      "UpstreamPathTemplate": "/api/stock/{id}",
+      "UpstreamHttpMethod": [
+        "Get"
+      ],
+      "DownstreamPathTemplate": "/api/stock/{id}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "stock-service",
+          "Port": 8080
+        }
+      ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": [
+          "bulls_management_service"
+        ]
+      }
+    },
+    {
+      "UpstreamPathTemplate": "/api/stock",
+      "UpstreamHttpMethod": [
+        "Post"
+      ],
+      "DownstreamPathTemplate": "/api/stock",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "stock-service",
+          "Port": 8080
+        }
+      ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": [
+          "bulls_management_service"
+        ]
+      }
+    },
+    {
+      "UpstreamPathTemplate": "/api/stock",
+      "UpstreamHttpMethod": [
+        "Put"
+      ],
+      "DownstreamPathTemplate": "/api/stock",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "stock-service",
+          "Port": 8080
+        }
+      ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": [
+          "bulls_management_service"
+        ]
+      }
+    },
+    {
+      "UpstreamPathTemplate": "/api/stock/{id}",
+      "UpstreamHttpMethod": [
+        "Delete"
+      ],
+      "DownstreamPathTemplate": "/api/stock/{id}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "stock-service",
+          "Port": 8080
+        }
+      ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": [
+          "bulls_management_service"
+        ]
+      }
     }
   ]
 }

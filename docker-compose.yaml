@@ -152,7 +152,7 @@
         
   rmq:
     image: rabbitmq:3-management
-    container_name: rabbitmq
+    container_name: bulls-rabbitmq
     ports:
       - "5672:5672"
       - "15672:15672"

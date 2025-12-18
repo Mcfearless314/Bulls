@@ -67,7 +67,4 @@ app.UseSwaggerUI();
 app.MapControllers();
 app.UseHttpsRedirection();
 
-
-
-app.UseHttpsRedirection();
 app.Run();
