@@ -1,6 +1,6 @@
 using EasyNetQ;
-using OrderSaga.Messaging;
 using OrderSagaService.Interfaces;
+using OrderSagaService.Messaging;
 using OrderSagaService.Sagas;
 using OrderSagaService.Workers;
 
