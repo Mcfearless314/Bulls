@@ -12,5 +12,6 @@ public interface IStockRepository
     public Task FreeProductReservation(int argProductId, int argQuantity);
     public Task ReturnStock(Dictionary<int, int> argProductsAndQuantities);
     public Task SellStock(Dictionary<int, int> argProductsAndQuantities);
+    public Task CancelStock(Dictionary<int, int> argProductsAndQuantities);
     public Task ReserveStockForProduct(int productId, int quantity);
 }

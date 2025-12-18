@@ -23,6 +23,13 @@ public class OrderController : ControllerBase
         return Accepted();
     }
 
+    [HttpGet("get-order-status/{orderId}")]
+    public async Task<IActionResult> GetOrderStatus([FromRoute] Guid orderId)
+    {
+        var orderStatus = await _orderService.GetOrderStatus(orderId);
+        return Ok(orderStatus);
+    }
+
 
     [HttpPost("CreateOrder")]
     public async Task<IActionResult> CreateOrder()

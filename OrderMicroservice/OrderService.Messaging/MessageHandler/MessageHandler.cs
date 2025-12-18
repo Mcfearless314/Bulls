@@ -21,12 +21,12 @@ public class MessageHandler : IMessageHandler
     {
        
         await _messageClient.SubscribeAsync<PlaceOrderFailedEvent>("place-order-failed", PlaceOrderFailed, 
-            cancellationToken, OrderEvent.PlaceOrderEvent);
+            cancellationToken, OrderEvent.PlaceOrderFailedEvent);
         
-        await _messageClient.SubscribeAsync<ConfirmOrderEvent>("place-order-failed", ConfirmOrder, 
+        await _messageClient.SubscribeAsync<ConfirmOrderEvent>("confirm-order", ConfirmOrder, 
             cancellationToken, OrderEvent.ConfirmOrderEvent);
         
-        await _messageClient.SubscribeAsync<SetOrderToPendingPaymentEvent>("set-order-to-pending_payment", SetOrderToPendingPayment, 
+        await _messageClient.SubscribeAsync<SetOrderToPendingPaymentEvent>("set-order-to-pending-payment", SetOrderToPendingPayment, 
             cancellationToken, OrderEvent.SetOrderToPendingPaymentEvent);
     }
 
@@ -41,6 +41,13 @@ public class MessageHandler : IMessageHandler
                 await _orderService.UpdateOrderStatus(arg.OrderId, OrderStatus.PaymentFailed);
             if (arg.StockFail)
                 await _orderService.UpdateOrderStatus(arg.OrderId, OrderStatus.ErrorInStock);
+            
+            var orderMarkedAsFailed = new OrderMarkedAsFailed
+            {
+                OrderId = arg.OrderId,
+                Success = true
+            };
+            await _messageClient.PublishAsync(orderMarkedAsFailed, OrderEvent.OrderMarkedAsFailed);
         }
         catch (Exception ex)
         {
@@ -51,16 +58,6 @@ public class MessageHandler : IMessageHandler
             };
             await _messageClient.PublishAsync(orderMarkedAsFailed, OrderEvent.OrderMarkedAsFailed);
         }
-        finally
-        {
-            var orderMarkedAsFailed = new OrderMarkedAsFailed
-            {
-                OrderId = arg.OrderId,
-                Success = true
-            };
-            await _messageClient.PublishAsync(orderMarkedAsFailed, OrderEvent.OrderMarkedAsFailed);
-        }
-
     }
 
     #endregion
@@ -73,6 +70,12 @@ public class MessageHandler : IMessageHandler
         try
         {
             await _orderService.UpdateOrderStatus(arg.OrderId, OrderStatus.Confirmed);
+            
+            var orderConfirmed = new OrderConfirmed
+            {
+                OrderId = arg.OrderId
+            };
+            await _messageClient.PublishAsync(orderConfirmed, OrderEvent.OrderConfirmed);
         }
         catch (Exception ex)
         {
@@ -82,14 +85,6 @@ public class MessageHandler : IMessageHandler
                 Reason = ex.Message,
             };
             await _messageClient.PublishAsync(confirmOrderFailed, OrderEvent.OrderConfirmFailed);
-        }
-        finally
-        {
-            var orderConfirmed = new OrderConfirmed
-            {
-                OrderId = arg.OrderId
-            };
-            await _messageClient.PublishAsync(orderConfirmed, OrderEvent.OrderConfirmed);
         }
     }
     
@@ -103,6 +98,13 @@ public class MessageHandler : IMessageHandler
         try
         {
             await _orderService.UpdateOrderStatus(arg.OrderId, OrderStatus.PendingPayment);
+            
+            var orderConfirmed = new OrderSetToPendingPayment
+            {
+                OrderId = arg.OrderId
+            };
+            Console.WriteLine($"Publishing {OrderEvent.SetOrderToPendingPaymentEvent}");
+            await _messageClient.PublishAsync(orderConfirmed, OrderEvent.OrderSetToPendingPayment);
         }
         catch (Exception ex)
         {
@@ -112,14 +114,6 @@ public class MessageHandler : IMessageHandler
                 Reason = ex.Message,
             };
             await _messageClient.PublishAsync(confirmOrderFailed, OrderEvent.OrderSetToPendingPaymentFailed);
-        }
-        finally
-        {
-            var orderConfirmed = new OrderSetToPendingPayment
-            {
-                OrderId = arg.OrderId
-            };
-            await _messageClient.PublishAsync(orderConfirmed, OrderEvent.OrderSetToPendingPayment);
         }
     }
     
