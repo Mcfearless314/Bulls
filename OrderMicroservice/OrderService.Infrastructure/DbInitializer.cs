@@ -10,38 +10,20 @@ public class DbInitializer
         await context.Database.EnsureDeletedAsync();
         await context.Database.EnsureCreatedAsync();
 
-        var order = new Order
-        {
-            Id = Guid.NewGuid(),
-            UserId = 1,
-            Status = OrderStatus.Initialized,
-            CreatedAt = DateTime.Now,
-        };
-        
-        await context.Orders.AddAsync(order);
-        await context.SaveChangesAsync();
+        var orders = new List<Order>();
 
-        var orderItems = new List<OrderItem>
+        for (int i = 1; i <= 10; i++)
         {
-            new OrderItem
+            orders.Add(new Order
             {
-                OrderId = order.Id,
-                ProductId = 1,
-                ProductName = "Screen",
-                Quantity = 2,
-                Price = 1000,
-            },
-            new OrderItem
-            {
-                OrderId = order.Id,
-                ProductId = 3,
-                ProductName = "Graphics Card",
-                Quantity = 1,
-                Price = 5000,
-            }
-        };
-        
-        await context.OrderItems.AddRangeAsync(orderItems);
+                Id = Guid.NewGuid(),
+                UserId = 1,
+                CreatedAt = DateTime.Now,
+                Status = OrderStatus.Initialized
+            });
+        }
+
+        await context.Orders.AddRangeAsync(orders);
         await context.SaveChangesAsync();
     }
 }

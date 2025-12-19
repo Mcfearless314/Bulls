@@ -30,6 +30,13 @@ public class OrderController : ControllerBase
         return Ok(orderStatus);
     }
 
+    [HttpGet("GetAllOrders")]
+    public async Task<IActionResult> GetAllTask()
+    {
+        var orders = await _orderService.GetAllAsync();
+        return Ok(orders);
+    }
+
     [HttpGet("GetOrderById/{orderId}")]
     public async Task<IActionResult> GetOrderById([FromRoute] Guid orderId)
     {
