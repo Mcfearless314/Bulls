@@ -143,6 +143,9 @@ To set up HashiCorp Vault locally, follow these steps:
 5. Click `Download keys` to download the unseal keys and root token, or copy them to a secure location
 6. Copy paste a Key from the Keys section into the `Unseal Key Portion` input field and click on `Unseal` button.
 7. Repeat step 6 with another key to fully unseal the Vault.
+
+**NB: Remember to unseal Vault each time it is restarted.**
+
 8. Once the Vault is unsealed, you can log in using the root token.
 9. Click `Secret Engines` in the left sidebar, then click on `Enable new engine`.
 10. Select `KV` from the list of secret engines.
