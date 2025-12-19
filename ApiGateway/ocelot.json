@@ -167,6 +167,26 @@
           "bulls_management_service"
         ]
       }
+    },
+    {
+      "UpstreamPathTemplate": "/api/order/GetAllOrders",
+      "UpstreamHttpMethod": [
+        "Get"
+      ],
+      "DownstreamPathTemplate": "/api/order/GetAllOrders",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "order-service",
+          "Port": 8080
+        }
+      ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": [
+          "bulls_management_service"
+        ]
+      }
     }
   ]
 }
