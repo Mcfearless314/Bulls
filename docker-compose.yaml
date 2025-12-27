@@ -82,10 +82,13 @@
       ACCEPT_EULA: "Y"
     env_file:
       - .env
+    ports:
+      - "1433:1433"
     volumes:
       - stock-data:/var/opt/mssql
     networks:
       - microservices
+      - default
          
   order-service:
     image: orderservice

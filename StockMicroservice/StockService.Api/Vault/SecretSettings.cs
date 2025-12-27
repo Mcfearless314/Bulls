@@ -12,4 +12,7 @@ public class SecretSettings
     
     [JsonProperty("stock-db")]
     public string? StockDb { get; set; }
+
+    [JsonProperty("stock-service-db-connection-string")]
+    public string? StockServiceDb { get; set; }
 }

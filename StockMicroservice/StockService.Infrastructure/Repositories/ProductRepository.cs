@@ -6,9 +6,9 @@ namespace StockService.Infrastructure.Repositories;
 
 public class ProductRepository : IProductRepository
 {
-    private readonly AppDbContext _context;
+    private readonly StockDbContext _context;
 
-    public ProductRepository(AppDbContext context)
+    public ProductRepository(StockDbContext context)
     {
         _context = context;
     }

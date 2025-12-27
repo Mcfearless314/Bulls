@@ -23,7 +23,8 @@ var vaultKvV2MountPath = builder.Configuration.GetValue<string>("Vault:VaultKvV2
 
 if (string.IsNullOrEmpty(vaultHostName) || string.IsNullOrEmpty(vaultPath) || string.IsNullOrEmpty(vaultKvV2MountPath))
 {
-    throw new InvalidOperationException("Missing required Vault configuration values. Please ensure 'Vault:VaultHostName', 'Vault:VaultPath', and 'Vault:VaultKvV2MountPath' are set in configuration.");
+    throw new InvalidOperationException(
+        "Missing required Vault configuration values. Please ensure 'Vault:VaultHostName', 'Vault:VaultPath', and 'Vault:VaultKvV2MountPath' are set in configuration.");
 }
 
 builder.Configuration.AddEnvironmentVariables();
@@ -32,7 +33,8 @@ var vaultPassword = builder.Configuration["Password"];
 
 if (string.IsNullOrWhiteSpace(vaultUsername) || string.IsNullOrWhiteSpace(vaultPassword))
 {
-    Console.Error.WriteLine("Vault credentials are missing. Ensure environment variables 'Username' and 'Password' are set.");
+    Console.Error.WriteLine(
+        "Vault credentials are missing. Ensure environment variables 'Username' and 'Password' are set.");
     throw new InvalidOperationException("Vault credentials are required to start the API Gateway.");
 }
 
@@ -43,7 +45,8 @@ while (string.IsNullOrEmpty(secretSettings.StockDb))
 {
     try
     {
-        secretSettings = VaultHelper.FetchSecretsFromVault(vaultHostName, vaultPath, vaultKvV2MountPath, vaultUsername, vaultPassword);
+        secretSettings = VaultHelper.FetchSecretsFromVault(vaultHostName, vaultPath, vaultKvV2MountPath, vaultUsername,
+            vaultPassword);
         Console.WriteLine("Successfully fetched secrets from Vault.");
     }
     catch (Exception exception)
@@ -62,9 +65,17 @@ builder.Services.AddDbContext<AppDbContext>(options =>
             errorNumbersToAdd: null);
     }));
 
-
-
 builder.Services.AddScoped<DbInitializer>();
+
+builder.Services.AddDbContext<StockDbContext>(options =>
+    options.UseSqlServer(secretSettings.StockServiceDb, sqlOptions =>
+    {
+        sqlOptions.EnableRetryOnFailure(
+            maxRetryCount: 5,
+            maxRetryDelay: TimeSpan.FromSeconds(10),
+            errorNumbersToAdd: null);
+    }));
+
 builder.Services.AddScoped<IStockRepository, StockRepository>();
 builder.Services.AddScoped<StockService.Application.Services.StockService>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
@@ -79,8 +90,9 @@ builder.Services.AddSingleton<IBus>(sp =>
     {
         try
         {
-            var bus = RabbitHutch.CreateBus($"host=rmq;virtualHost=/;username={secretSettings.RmqUser};password={secretSettings.RmqPassword}");
-            Console.WriteLine($"EasyNetQ connected to rabbitmq on attempt {i+1}");
+            var bus = RabbitHutch.CreateBus(
+                $"host=rmq;virtualHost=/;username={secretSettings.RmqUser};password={secretSettings.RmqPassword}");
+            Console.WriteLine($"EasyNetQ connected to rabbitmq on attempt {i + 1}");
             return bus;
         }
         catch (Exception ex)
@@ -95,6 +107,7 @@ builder.Services.AddSingleton<IBus>(sp =>
 
 var app = builder.Build();
 
+
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
@@ -102,6 +115,7 @@ using (var scope = app.Services.CreateScope())
     var dbInitializer = services.GetRequiredService<DbInitializer>();
     dbInitializer.InitializeAsync(dbContext).GetAwaiter().GetResult();
 }
+
 
 app.UseSwagger();
 app.UseSwaggerUI();
