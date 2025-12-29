@@ -33,11 +33,6 @@ public class StockService
         return await _stockRepository.UpdateAsync(stock);
     }
 
-    public async Task<Stock> DeleteAsync(int id)
-    {
-        return await _stockRepository.DeleteAsync(id);
-    }
-
     public async Task FreeProductReservation(FreeProductReservationEvent arg)
     {
         await _stockRepository.FreeProductReservation(arg.ProductId, arg.Quantity);

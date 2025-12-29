@@ -20,15 +20,17 @@ public class ProductRepository : IProductRepository
 
     public async Task<Product> GetByIdAsync(int id)
     {
-        var product = await _context.Products.FindAsync(id);
+        var result = await _context.Products
+            .FromSqlInterpolated($"EXEC dbo.GetProductById @Id = {id}")
+            .ToListAsync(); 
+
+        var product = result.FirstOrDefault();
         if (product == null)
-        {
-            Console.WriteLine("Product not found");
             throw new KeyNotFoundException("Product not found");
-        }
 
         return product;
     }
+
 
     public async Task<Product> CreateAsync(Product product)
     {

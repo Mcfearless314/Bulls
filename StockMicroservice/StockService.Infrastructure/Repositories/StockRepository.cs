@@ -1,6 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using StockService.Core.Entities;
 using StockService.Core.Interfaces;
+using StockService.Infrastructure.DTOs;
 
 namespace StockService.Infrastructure.Repositories;
 
@@ -15,150 +17,197 @@ public class StockRepository : IStockRepository
 
     public async Task<IEnumerable<Stock>> GetAllAsync()
     {
-        return await _context.Stocks
-            .Include(s => s.Product)
+        var result = await _context.Database.SqlQuery<StockWithProductDto>($"EXEC dbo.GetAllStocks")
             .ToListAsync();
+
+        var stocks = result.Select(d => new Stock
+        {
+            Id = d.Id,
+            ProductId = d.ProductId,
+            Quantity = d.Quantity,
+            ReservedQuantity = d.ReservedQuantity,
+            SoldQuantity = d.SoldQuantity,
+            Product = new Product
+            {
+                Id = d.ProductId,
+                Name = d.Name,
+                Description = d.Description,
+                Price = d.Price
+            }
+        }).ToList();
+
+        return stocks;
     }
+
 
     public async Task<Stock> GetByIdAsync(int id)
     {
-        var stock = await _context.Stocks
-            .Include(s => s.Product)
-            .FirstOrDefaultAsync(s => s.Id == id);
+        var result = await _context.Database
+            .SqlQuery<StockWithProductDto>($"EXEC dbo.GetStockById @Id = {id}")
+            .ToListAsync();   
 
-        if (stock == null)
+        var dto = result.FirstOrDefault();  
+
+        if (dto == null)
         {
             Console.WriteLine("Stock does not exist");
             throw new KeyNotFoundException("Stock not found for the given StockId");
         }
+
+        var stock = new Stock
+        {
+            Id = dto.Id,
+            ProductId = dto.ProductId,
+            Quantity = dto.Quantity,
+            ReservedQuantity = dto.ReservedQuantity,
+            SoldQuantity = dto.SoldQuantity,
+            Product = new Product
+            {
+                Id = dto.ProductId,
+                Name = dto.Name,
+                Description = dto.Description,
+                Price = dto.Price
+            }
+        };
 
         return stock;
     }
 
     public async Task<Stock> CreateAsync(Stock stock)
     {
-        var createdStock = await _context.Stocks.AddAsync(stock);
-        await _context.SaveChangesAsync();
-        return createdStock.Entity;
+        var result = await _context.Database
+            .SqlQuery<StockWithProductDto>(
+                $"EXEC dbo.CreateStock @ProductId = {stock.ProductId}, @Quantity = {stock.Quantity}")
+            .ToListAsync();
+
+        var dto = result.FirstOrDefault();
+
+        if (dto == null)
+            throw new KeyNotFoundException("CreateStock did not return data");
+
+        return new Stock
+        {
+            Id = dto.Id,
+            ProductId = dto.ProductId,
+            Quantity = dto.Quantity,
+            ReservedQuantity = dto.ReservedQuantity,
+            SoldQuantity = dto.SoldQuantity,
+            Product = new Product
+            {
+                Id = dto.ProductId,
+                Name = dto.Name,
+                Description = dto.Description,
+                Price = dto.Price
+            }
+        };
     }
 
     public async Task<Stock> UpdateAsync(Stock stock)
     {
-        var updatedStock = await _context.Stocks.FindAsync(stock.Id);
+        var result = await _context.Database
+            .SqlQuery<StockWithProductDto>($"EXEC dbo.UpdateStockQuantity @Id = {stock.Id}, @Quantity = {stock.Quantity}")
+            .ToListAsync();
+        
+        var dto = result.FirstOrDefault();
 
-        updatedStock.Quantity = stock.Quantity;
-        updatedStock.ReservedQuantity = stock.ReservedQuantity;
+        if (dto == null)
+            throw new KeyNotFoundException("UpdateStockQuantity did not return data");
 
-        await _context.SaveChangesAsync();
-
-        return updatedStock;
-    }
-
-    public async Task<Stock> DeleteAsync(int id)
-    {
-        var deletedStock = await _context.Stocks.FindAsync(id);
-        _context.Stocks.Remove(deletedStock);
-        await _context.SaveChangesAsync();
-        return deletedStock;
-    }
-
-    public async Task FreeProductReservation(int argProductId, int argQuantity)
-    {
-        var stock = await _context.Stocks
-            .FirstOrDefaultAsync(s => s.ProductId == argProductId);
-
-        if (stock == null)
+        return new Stock
         {
-            Console.WriteLine("Stock does not exist");
-            throw new KeyNotFoundException("Stock not found for the given ProductId");
+            Id = dto.Id,
+            ProductId = dto.ProductId,
+            Quantity = dto.Quantity,
+            ReservedQuantity = dto.ReservedQuantity,
+            SoldQuantity = dto.SoldQuantity,
+            Product = new Product
+            {
+                Id = dto.ProductId,
+                Name = dto.Name,
+                Description = dto.Description,
+                Price = dto.Price
+            }
+        };
+    }
+    
+    public async Task FreeProductReservation(int productId, int quantity)
+    {
+        try
+        {
+            await _context.Database.ExecuteSqlInterpolatedAsync(
+                $"EXEC dbo.FreeProductReservation @ProductId = {productId}, @Quantity = {quantity}");
         }
-
-        stock.ReservedQuantity -= argQuantity;
-        stock.Quantity += argQuantity;
-
-        await _context.SaveChangesAsync();
+        catch (SqlException ex)
+        {
+            Console.WriteLine($"SQL Error: {ex.Message}");
+            throw new InvalidOperationException("Something went wrong.");
+        }
     }
 
     public async Task ReturnStock(Dictionary<int, int> productsAndQuantities)
     {
-        foreach (var pq in productsAndQuantities)
+        try
         {
-            var stock = await _context.Stocks
-                .FirstOrDefaultAsync(s => s.ProductId == pq.Key);
-
-            if (stock == null)
+            foreach (var pq in productsAndQuantities)
             {
-                Console.WriteLine("Stock does not exist");
-                throw new KeyNotFoundException("Stock not found for the given ProductId");
+                await _context.Database.ExecuteSqlInterpolatedAsync(
+                    $"EXEC dbo.ReturnStock @ProductId = {pq.Key}, @Quantity = {pq.Value}");
             }
-
-            stock.SoldQuantity -= pq.Value;
-            stock.Quantity += pq.Value;
         }
-
-        await _context.SaveChangesAsync();
+        catch (SqlException ex)
+        {
+            Console.WriteLine($"SQL Error: {ex.Message}");
+            throw new InvalidOperationException("Something went wrong.");
+        }
     }
+
 
     public async Task SellStock(Dictionary<int, int> productsAndQuantities)
     {
-        foreach (var pq in productsAndQuantities)
+        try
         {
-            var stock = await _context.Stocks
-                .FirstOrDefaultAsync(s => s.ProductId == pq.Key);
-
-            if (stock == null)
+            foreach (var pq in productsAndQuantities)
             {
-                Console.WriteLine("Stock does not exist");
-                throw new KeyNotFoundException("Stock not found for the given ProductId");
+                await _context.Database.ExecuteSqlInterpolatedAsync(
+                    $"EXEC dbo.SellStock @ProductId = {pq.Key}, @Quantity = {pq.Value}");
             }
-
-            stock.ReservedQuantity -= pq.Value;
-            stock.SoldQuantity += pq.Value;
         }
-
-        await _context.SaveChangesAsync();
+        catch (SqlException ex)
+        {
+            Console.WriteLine($"SQL Error: {ex.Message}");
+            throw new InvalidOperationException("Something went wrong.");
+        }
     }
 
     public async Task CancelStock(Dictionary<int, int> productsAndQuantities)
     {
-        foreach (var pq in productsAndQuantities)
+        try
         {
-            var stock = await _context.Stocks
-                .FirstOrDefaultAsync(s => s.ProductId == pq.Key);
-
-            if (stock == null)
+            foreach (var pq in productsAndQuantities)
             {
-                Console.WriteLine("Stock does not exist");
-                throw new KeyNotFoundException("Stock not found for the given ProductId");
+                await _context.Database.ExecuteSqlInterpolatedAsync(
+                    $"EXEC dbo.CancelStock @ProductId = {pq.Key}, @Quantity = {pq.Value}");
             }
-
-            stock.ReservedQuantity += pq.Value;
-            stock.SoldQuantity -= pq.Value;
         }
-
-        await _context.SaveChangesAsync();
+        catch (SqlException ex)
+        {
+            Console.WriteLine($"SQL Error: {ex.Message}");
+            throw new InvalidOperationException("Something went wrong.");
+        }
     }
+
 
     public async Task ReserveStockForProduct(int productId, int quantity)
     {
-        var stock = await _context.Stocks
-            .FirstOrDefaultAsync(s => s.ProductId == productId);
-
-        if (stock == null)
+        try
         {
-            Console.WriteLine("Stock does not exist");
-            throw new KeyNotFoundException("Stock not found for the given ProductId");
+            await _context.Database.ExecuteSqlInterpolatedAsync(
+                $"EXEC dbo.ReserveStock @ProductId = {productId}, @Quantity = {quantity}");
         }
-
-        if (stock.Quantity < quantity)
+        catch (SqlException ex)
         {
-            Console.WriteLine("Insufficient stock quantity to reserve the requested amount");
-            throw new InvalidOperationException("Insufficient stock quantity to reserve the requested amount");
+            Console.WriteLine($"SQL Error: {ex.Message}");
+            throw new InvalidOperationException("Something went wrong.");
         }
-
-        stock.Quantity -= quantity;
-        stock.ReservedQuantity += quantity;
-
-        await _context.SaveChangesAsync();
     }
 }

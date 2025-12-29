@@ -29,36 +29,27 @@ public class StockController : ControllerBase
         return Ok(stock);
     }
 
-    [HttpPost]
+    [HttpPost("create")]
     public async Task<IActionResult> CreateStock([FromBody] StockDto dto)
     {
         var stock = new Stock
         {
             ProductId = dto.ProductId,
             Quantity = dto.Quantity,
-            ReservedQuantity = dto.ReservedQuantity,
         };
         var createdStock = await _stockService.CreateAsync(stock);
         return Ok(createdStock);
     }
 
-    [HttpPut]
+    [HttpPut("update")]
     public async Task<IActionResult> UpdateStock([FromBody] StockDto dto)
     {
         var stock = new Stock
         {
             Id = dto.Id,
             Quantity = dto.Quantity,
-            ReservedQuantity = dto.ReservedQuantity,
         };
         var updatedStock = await _stockService.UpdateAsync(stock);
         return Ok(updatedStock);
-    }
-
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteStock(int id)
-    {
-        var  deletedStock = await _stockService.DeleteAsync(id);
-        return Ok(deletedStock);
     }
 }
