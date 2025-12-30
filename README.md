@@ -280,13 +280,17 @@ Add StockServiceDb in the vault:
 
 `Server=stock-db,1433;Database=StockDb;User Id=StockServiceLogin;Password={YourPasswordHere};TrustServerCertificate=True`
 
+Update {YourPasswordHere} to your own password.
+
 Access the database through SQL Server Management Studio:
 
 Servername: localhost,1433  
 Login: sa  
 Password {YourPasswordHere}
 
-Execute the query:
+Replace {YourPasswordHere} to your own password defined for the sa user.
+
+Execute the query below. Remember to update {YourPasswordHere} to the passwords used for the connection strings for StockCreatorLogin and StockServiceLogin.
 
 ```
 USE master;
@@ -345,6 +349,8 @@ Access the database through SQL Server Management Studio:
 Servername: localhost,1433  
 Login: sa  
 Password {YourPasswordHere}
+
+Replace {YourPasswordHere} to your own password defined for the sa user.
 
 Execute the query in StockDb:
 
