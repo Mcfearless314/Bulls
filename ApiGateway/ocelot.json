@@ -227,6 +227,26 @@
           "bulls_management_service"
         ]
       }
+    },
+    {
+      "UpstreamPathTemplate": "/api/stock/{id}",
+      "UpstreamHttpMethod": [
+        "Get"
+      ],
+      "DownstreamPathTemplate": "/api/stock/{id}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "stock-service",
+          "Port": 8080
+        }
+      ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": [
+          "bulls_management_service"
+        ]
+      }
     }
   ]
 }

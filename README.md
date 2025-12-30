@@ -269,3 +269,380 @@ To validate that the stock has been decremented after placing the order, you can
 `http://localhost:5000/api/stock/getallstock`
 
 Confirm that the stock quantity has decreased and soldQuantity has increased for the products in the order.
+
+# How to setup database
+
+Update StockDb connectionString in the vault to:
+
+`Server=stock-db,1433;Database=StockDb;User Id=StockCreatorLogin;Password={YourPasswordHere};TrustServerCertificate=True`
+
+Add StockServiceDb in the vault:
+
+`Server=stock-db,1433;Database=StockDb;User Id=StockServiceLogin;Password={YourPasswordHere};TrustServerCertificate=True`
+
+Access the database through SQL Server Management Studio:
+
+Servername: localhost,1433  
+Login: sa  
+Password {YourPasswordHere}
+
+Execute the query:
+
+```
+USE master;
+GO
+
+Create Database StockDb;
+
+CREATE LOGIN StockCreatorLogin
+WITH PASSWORD = '{YourPasswordHere}',
+     CHECK_POLICY = ON;
+GO
+
+CREATE LOGIN StockServiceLogin
+WITH PASSWORD = '{YourPasswordHere}',
+     CHECK_POLICY = ON;
+GO
+
+Use StockDb;
+GO
+
+CREATE ROLE StockCreation;
+GO
+
+GRANT CREATE TABLE TO StockCreation;
+GRANT CREATE VIEW TO StockCreation;
+GRANT CREATE PROCEDURE TO StockCreation;
+GRANT CREATE FUNCTION TO StockCreation;
+
+GRANT ALTER ON SCHEMA::dbo TO StockCreation;
+GRANT REFERENCES TO StockCreation;
+GRANT INSERT, UPDATE, DELETE, SELECT ON SCHEMA::dbo TO StockCreation;
+GO 
+
+CREATE ROLE StockServiceRW;
+GO
+
+CREATE USER StockCreatorUser
+FOR LOGIN StockCreatorLogin;
+GO
+
+CREATE USER StockServiceUser
+FOR LOGIN StockServiceLogin;
+GO
+
+ALTER ROLE StockCreation ADD MEMBER StockCreatorUser;
+ALTER ROLE StockServiceRW ADD MEMBER StockServiceUser;
+GO
+```
+
+Restart the stock-service container in order for StockCreator to add tables and test data.
+
+# How to setup stored procedures
+
+Access the database through SQL Server Management Studio:
+
+Servername: localhost,1433  
+Login: sa  
+Password {YourPasswordHere}
+
+Execute the query in StockDb:
+
+```
+CREATE PROCEDURE dbo.GetAllStocks
+AS
+BEGIN
+SELECT
+s.Id,
+s.ProductId,
+s.Quantity,
+s.ReservedQuantity,
+s.SoldQuantity,
+p.Name,
+p.Description,
+p.Price
+FROM Stocks s
+LEFT JOIN Products p ON p.Id = s.ProductId;
+END;
+GO
+
+CREATE PROCEDURE dbo.GetStockById
+@Id INT
+AS
+BEGIN
+SELECT
+s.Id,
+s.ProductId,
+s.Quantity,
+s.ReservedQuantity,
+s.SoldQuantity,
+p.Name,
+p.Description,
+p.Price
+FROM Stocks s
+LEFT JOIN Products p ON p.Id = s.ProductId
+WHERE s.Id = @Id;
+END;
+GO
+
+CREATE PROCEDURE dbo.CreateStock
+(
+@ProductId INT,
+@Quantity INT
+)
+AS
+BEGIN
+INSERT INTO Stocks (ProductId, Quantity, ReservedQuantity, SoldQuantity)
+VALUES (@ProductId, @Quantity, 0, 0);
+
+    SELECT s.*, p.*
+    FROM Stocks s
+    LEFT JOIN Products p ON p.Id = s.ProductId
+    WHERE s.Id = SCOPE_IDENTITY();
+END;
+GO
+
+CREATE PROCEDURE dbo.UpdateStockQuantity
+(
+@Id INT,
+@Quantity INT  
+)
+AS
+BEGIN
+UPDATE Stocks
+SET Quantity = Quantity + @Quantity
+WHERE Id = @Id;
+
+    SELECT 
+        s.Id,
+        s.ProductId,
+        s.Quantity,
+        s.ReservedQuantity,
+        s.SoldQuantity,
+        p.Name,
+        p.Description,
+        p.Price
+    FROM Stocks s
+    LEFT JOIN Products p ON p.Id = s.ProductId
+    WHERE s.Id = @Id;
+END;
+GO
+
+CREATE PROCEDURE dbo.FreeProductReservation
+(
+    @ProductId INT,
+    @Quantity INT
+)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    IF EXISTS (SELECT 1 FROM Stocks WHERE ProductId = @ProductId)
+    BEGIN
+        UPDATE Stocks
+        SET ReservedQuantity = ReservedQuantity - @Quantity,
+            Quantity = Quantity + @Quantity
+        WHERE ProductId = @ProductId;
+    END
+    ELSE
+    BEGIN
+        RAISERROR('Stock not found for the given ProductId', 16, 1);
+    END
+END
+GO
+
+CREATE PROCEDURE dbo.ReturnStock
+(
+    @ProductId INT,
+    @Quantity INT
+)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    IF EXISTS (SELECT 1 FROM Stocks WHERE ProductId = @ProductId)
+    BEGIN
+        UPDATE Stocks
+        SET SoldQuantity = SoldQuantity - @Quantity,
+            Quantity = Quantity + @Quantity
+        WHERE ProductId = @ProductId;
+    END
+    ELSE
+    BEGIN
+        RAISERROR('Stock not found for the given ProductId', 16, 1);
+    END
+END
+GO
+
+CREATE PROCEDURE dbo.SellStock
+(
+    @ProductId INT,
+    @Quantity INT
+)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    IF EXISTS (SELECT 1 FROM Stocks WHERE ProductId = @ProductId)
+    BEGIN
+        UPDATE Stocks
+        SET ReservedQuantity = ReservedQuantity - @Quantity,
+            SoldQuantity = SoldQuantity + @Quantity
+        WHERE ProductId = @ProductId;
+    END
+    ELSE
+    BEGIN
+        RAISERROR('Stock not found for the given ProductId', 16, 1);
+    END
+END
+GO
+
+CREATE PROCEDURE dbo.CancelStock
+(
+    @ProductId INT,
+    @Quantity INT
+)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    IF EXISTS (SELECT 1 FROM Stocks WHERE ProductId = @ProductId AND SoldQuantity >= @Quantity)
+    BEGIN
+        UPDATE Stocks
+        SET ReservedQuantity = ReservedQuantity + @Quantity,
+            SoldQuantity = SoldQuantity - @Quantity
+        WHERE ProductId = @ProductId;
+    END
+    ELSE
+    BEGIN
+        RAISERROR('Cannot cancel more than sold quantity', 16, 1);
+    END
+END
+GO
+
+CREATE PROCEDURE dbo.ReserveStock
+(
+    @ProductId INT,
+    @Quantity INT
+)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    IF EXISTS (SELECT 1 FROM Stocks WHERE ProductId = @ProductId AND Quantity >= @Quantity)
+    BEGIN
+        UPDATE Stocks
+        SET Quantity = Quantity - @Quantity,
+            ReservedQuantity = ReservedQuantity + @Quantity
+        WHERE ProductId = @ProductId;
+    END
+    ELSE
+    BEGIN
+        RAISERROR('Insufficient stock quantity to reserve the requested amount', 16, 1);
+    END
+END
+GO
+```
+
+Run the following query to REVOKE and GRANT permissions to StockService:
+
+```
+REVOKE SELECT, INSERT, UPDATE, DELETE ON SCHEMA::dbo TO StockServiceRW;
+GO
+
+GRANT EXECUTE ON dbo.GetAllStocks TO StockServiceRW;
+GRANT EXECUTE ON dbo.GetStockById TO StockServiceRW;
+GRANT EXECUTE ON dbo.CreateStock TO StockServiceRW;
+GRANT EXECUTE ON dbo.UpdateStockQuantity TO StockServiceRW;
+GRANT EXECUTE ON dbo.FreeProductReservation TO StockServiceRW;
+GRANT EXECUTE ON dbo.ReserveStock TO StockServiceRW;
+GRANT EXECUTE ON dbo.SellStock TO StockServiceRW;
+GRANT EXECUTE ON dbo.ReturnStock TO StockServiceRW;
+GRANT EXECUTE ON dbo.CancelStock TO StockServiceRW;
+```
+
+# Test Stored Procedures
+
+To test the stored procedures for GetAllStocks, FreeProductReservation, ReservesStock and SellStock, you can repeat the `Test Add Product To Order`, `Test Remove Product From Order` and `Test Place an Order` steps to validate the methods work.  
+
+To test Get By Id:
+
+`http://localhost:5000/api/stock/{id}` (GET)
+
+To test Create Stock:
+
+`http://localhost:5000/api/stock/create` (POST)
+
+```json
+{
+"id": 0,
+"productId": 1,
+"quantity": 20
+}
+```
+
+To test Update Stock:
+
+`http://localhost:5000/api/stock/update` (PUT)
+
+```json
+{
+"id": 1,
+"productId": 0,
+"quantity": 10
+}
+```
+
+Cancel and Return stock can only be tested through the database. Login StockServiceLogin to test the procedures.
+
+To test all the stored procedures through the database, login StockService. Example queries:
+
+Get All Stock:
+```
+EXEC dbo.GetAllStocks;
+```
+
+Get Stock By Id:
+```
+EXEC dbo.GetStockById @Id = 1;
+```
+
+Create Stock:
+```
+EXEC dbo.CreateStock @ProductId = 1, @Quantity = 50;
+```
+
+Update Stock:
+```
+EXEC dbo.UpdateStockQuantity @Id = 1, @Quantity = 25;
+```
+
+Free Product Reservation:
+``` 
+EXEC dbo.FreeProductReservation @ProductId = 1, @Quantity = 10;
+``` 
+
+Return Stock:
+```
+EXEC dbo.ReturnStock @ProductId = 1, @Quantity = 5;
+```
+
+Sell Stock:
+```
+EXEC dbo.SellStock @ProductId = 1, @Quantity = 15;
+```
+
+Cancel Stock:
+```
+EXEC dbo.CancelStock @ProductId = 1, @Quantity = 10;
+```
+
+Reserve Stock:
+```
+EXEC dbo.ReserveStock @ProductId = 1, @Quantity = 20;
+```
+
+Validate StockService only can run procedures. Attempt to run any SELECT, INSERT, UPDATE and DELETE and permission should be denied.
+
+
+
