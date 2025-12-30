@@ -286,7 +286,7 @@ Access the database through SQL Server Management Studio:
 
 Servername: localhost,1433  
 Login: sa  
-Password {YourPasswordHere}
+Password: {YourPasswordHere}
 
 Replace {YourPasswordHere} to your own password defined for the sa user.
 
@@ -348,7 +348,7 @@ Access the database through SQL Server Management Studio:
 
 Servername: localhost,1433  
 Login: sa  
-Password {YourPasswordHere}
+Password: {YourPasswordHere}
 
 Replace {YourPasswordHere} to your own password defined for the sa user.
 
