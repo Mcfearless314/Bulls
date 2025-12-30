@@ -548,6 +548,22 @@ BEGIN
     END
 END
 GO
+
+CREATE PROCEDURE dbo.GetProductById
+    @Id INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT 
+        p.Id AS Id,
+        p.Name AS Name,
+        p.Description AS Description,
+        p.Price AS Price
+    FROM Products p
+    WHERE p.Id = @Id;
+END
+GO
 ```
 
 Run the following query to REVOKE and GRANT permissions to StockService:
@@ -565,6 +581,7 @@ GRANT EXECUTE ON dbo.ReserveStock TO StockServiceRW;
 GRANT EXECUTE ON dbo.SellStock TO StockServiceRW;
 GRANT EXECUTE ON dbo.ReturnStock TO StockServiceRW;
 GRANT EXECUTE ON dbo.CancelStock TO StockServiceRW;
+GRANT EXECUTE ON dbo.GetProductById TO StockServiceRW;
 ```
 
 # Test Stored Procedures

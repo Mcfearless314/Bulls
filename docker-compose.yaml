@@ -74,11 +74,13 @@
         condition: service_started
     networks:
       - microservices
+      - default
         
   stock-db:
-    image: mcr.microsoft.com/azure-sql-edge:latest
+    image: mcr.microsoft.com/mssql/server:2022-latest
     environment:
       MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD}
+      MSSQL_AGENT_ENABLED: "true"
       ACCEPT_EULA: "Y"
     env_file:
       - .env
