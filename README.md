@@ -272,11 +272,11 @@ Confirm that the stock quantity has decreased and soldQuantity has increased for
 
 # How to setup database
 
-Update StockDb connectionString in the vault to:
+Update `stock-db` connectionString in the vault to:
 
 `Server=stock-db,1433;Database=StockDb;User Id=StockCreatorLogin;Password={YourPasswordHere};TrustServerCertificate=True`
 
-Add StockServiceDb in the vault:
+Add `stock-service-db-connection-string` in the vault:
 
 `Server=stock-db,1433;Database=StockDb;User Id=StockServiceLogin;Password={YourPasswordHere};TrustServerCertificate=True`
 
