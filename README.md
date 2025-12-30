@@ -342,6 +342,123 @@ GO
 
 Restart the stock-service container in order for StockCreator to add tables and test data.
 
+## How to setup CDC for the database
+In SSMS execute the following commands to enable CDC for StockDb and the Products and Stocks tables:
+```
+USE StockDb;
+GO
+
+EXEC sys.sp_cdc_enable_db;
+GO
+
+SELECT is_cdc_enabled, * FROM sys.databases
+GO
+
+EXEC sys.sp_cdc_enable_table
+  @source_schema = N'dbo',
+  @source_name   = N'Products',
+  @role_name     = NULL;
+GO
+
+EXEC sys.sp_cdc_enable_table
+  @source_schema = N'dbo',
+  @source_name   = N'Stocks',
+  @role_name     = NULL;
+GO
+```
+
+## Hot to setup SQL Server Audit for the database
+In SSMS execute the following commands to setup SQL Server Audit for StockDb:
+```
+USE master;
+GO
+
+CREATE SERVER AUDIT ProjectAudit
+TO FILE
+(
+    FILEPATH = '/var/opt/mssql/audit/',
+    MAXSIZE = 100 MB,
+    MAX_ROLLOVER_FILES = 5,
+    RESERVE_DISK_SPACE = OFF
+)
+WITH
+(
+    QUEUE_DELAY = 1000,
+    ON_FAILURE = CONTINUE
+);
+GO
+
+ALTER SERVER AUDIT ProjectAudit
+WITH (STATE = ON);
+GO
+
+CREATE SERVER AUDIT SPECIFICATION ProjectAuditSpec
+FOR SERVER AUDIT ProjectAudit
+ADD (FAILED_LOGIN_GROUP),
+ADD (SUCCESSFUL_LOGIN_GROUP),
+ADD (DATABASE_PERMISSION_CHANGE_GROUP),
+ADD (SCHEMA_OBJECT_PERMISSION_CHANGE_GROUP),
+ADD (SERVER_ROLE_MEMBER_CHANGE_GROUP),
+ADD (DATABASE_ROLE_MEMBER_CHANGE_GROUP);
+GO
+
+ALTER SERVER AUDIT SPECIFICATION ProjectAuditSpec
+WITH (STATE = ON);
+GO
+
+USE StockDb; 
+GO
+
+CREATE DATABASE AUDIT SPECIFICATION ProjectDbAuditSpec
+FOR SERVER AUDIT ProjectAudit
+ADD (SCHEMA_OBJECT_CHANGE_GROUP),
+ADD (DATABASE_OBJECT_CHANGE_GROUP);
+GO
+
+ALTER DATABASE AUDIT SPECIFICATION ProjectDbAuditSpec
+WITH (STATE = ON);
+GO
+```
+
+After the initial setup, create views to define what data to log:
+```
+USE StockDatabase;
+GO
+
+CREATE VIEW vw_AuditLog
+AS
+SELECT
+    event_time,
+    action_id,
+    succeeded,
+    server_principal_name,
+    database_principal_name,
+    database_name,
+    object_name,
+    statement,
+    client_ip,
+    application_name
+FROM sys.fn_get_audit_file(
+    '/var/opt/mssql/audit/*',
+    DEFAULT,
+    DEFAULT
+);
+GO
+```
+
+```
+CREATE VIEW vw_PermissionDenied
+AS
+SELECT
+    event_time,
+    server_principal_name,
+    database_name,
+    statement
+FROM vw_AuditLog
+WHERE succeeded = 0;
+GO
+```
+
 # How to setup stored procedures
 
 Access the database through SQL Server Management Studio:
