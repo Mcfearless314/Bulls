@@ -1,4 +1,15 @@
 ﻿services:
+  audit-init:
+    image: busybox
+    command: >
+      sh -c "
+      mkdir -p /var/opt/mssql/audit &&
+      chown -R 10001:0 /var/opt/mssql/audit &&
+      chmod -R 700 /var/opt/mssql/audit
+      "
+    volumes:
+      - stock-audit:/var/opt/mssql/audit
+  
   apigateway:
     image: apigateway
     build:
@@ -74,7 +85,6 @@
         condition: service_started
     networks:
       - microservices
-      - default
         
   stock-db:
     image: mcr.microsoft.com/mssql/server:2022-latest
@@ -88,6 +98,9 @@
       - "1433:1433"
     volumes:
       - stock-data:/var/opt/mssql
+      - stock-audit:/var/opt/mssql/audit
+    depends_on:
+      - audit-init
     networks:
       - microservices
       - default
@@ -191,6 +204,7 @@ networks:
 
 volumes:
   stock-data:
+  stock-audit:
   order-data:
   payment-data:
   authentication-data:
